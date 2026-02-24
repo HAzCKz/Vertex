@@ -1,4 +1,4 @@
-// teste-node/creddef/test_creddef_02_ledger_fetch_negative.js
+// WALLET_PASS="minha_senha_teste" RESET_WALLET=1 node teste-node/creddef/test_creddef_02_ledger_fetch_negative.js
 
 const fs = require("fs");
 const path = require("path");

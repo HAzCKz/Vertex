@@ -1,20 +1,20 @@
-use std::fs;
-use std::time::SystemTime;
-use std::time::UNIX_EPOCH;
 use argon2::Algorithm;
 use argon2::Argon2;
 use argon2::Params;
 use argon2::Version;
+use base64::engine::general_purpose::STANDARD as B64;
+use base64::Engine;
 use napi::{Error, Result};
-use rand::RngCore;
 use rand::rngs::OsRng;
+use rand::RngCore;
 use serde::Deserialize;
 use serde::Serialize;
 use sha2::Digest;
 use sha2::Sha256;
 use sha3::Sha3_256;
-use base64::Engine;
-use base64::engine::general_purpose::STANDARD as B64;
+use std::fs;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
 // Helpers Schemas >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -32,6 +32,31 @@ pub struct SchemaRecord {
     pub env: String, // "prod" | "test" | "template"
     pub created_at: i64,
     pub updated_at: i64,
+}
+
+// Helpers CredDefs >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CredDefRecord {
+    pub id_local: String,
+    pub issuer_did: String,
+
+    // >>> ADICIONAR ESTES 2:
+    pub schema_id: String,
+    pub tag: String,
+    
+    pub signature_type: String, // "CL" (padrão anoncreds)
+    pub support_revocation: bool,
+    pub on_ledger: bool,
+    pub cred_def_id: Option<String>,
+    pub env: String, // "prod" | "test" | "template"
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+pub fn make_creddef_local_id() -> String {
+    let mut buf = [0u8; 16];
+    OsRng.fill_bytes(&mut buf);
+    format!("local:creddef:{}", bs58::encode(buf).into_string())
 }
 
 pub const CONFIG_CATEGORY: &str = "config";
@@ -101,7 +126,6 @@ pub fn build_final_attr_names(mut user_attrs: Vec<String>, revocable: bool) -> R
     }
     Ok(user_attrs)
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WalletKdfSidecar {

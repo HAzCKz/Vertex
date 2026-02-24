@@ -1,19 +1,19 @@
 // src/modules/dids.rs
-use crate::{ledger, send_request_async}; // Importa o módulo ledger.rs que você já possui
 use crate::IndyAgent;
+use crate::{ledger, send_request_async}; // Importa o módulo ledger.rs que você já possui
 use aries_askar::entry::{EntryTag, TagFilter};
 use aries_askar::kms::{KeyAlg, LocalKey};
-use base64::Engine;
 use base64::engine::general_purpose;
+use base64::Engine;
 use napi::{Env, Error, JsObject, Result};
 use napi_derive::napi;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tokio::time::{Instant, sleep};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tokio::time::{sleep, Instant};
 
 // Re-importando do common o que for necessário
-use crate::modules::common::now_ts;
+// use crate::modules::common::now_ts;
 
 #[derive(Debug, Deserialize, Default)]
 pub struct DidSearchFilter {
@@ -27,6 +27,10 @@ pub struct DidSearchFilter {
     pub origin: Option<String>,   // "generated" | "imported_seed" | "manual" | "legacy"
     pub limit: Option<usize>,     // default 50
     pub offset: Option<usize>,    // default 0
+
+    // --- novos (opcionais) ---
+    pub hasRotationPending: Option<bool>, // true|false
+    pub verkey: Option<String>, // busca exata por verkey (current ou histórica, via índice)
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -42,6 +46,132 @@ pub struct CreateDidOpts {
     pub role: Option<String>,         // "ENDORSER|TRUSTEE|STEWARD|none"
     pub submitterDid: Option<String>, // obrigatório se public=true
     pub policy: Option<CreateDidPolicy>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct DidRotationState {
+    pub status: String, // "none" | "pending_local" | "pending_ledger"
+    pub pendingVerkey: Option<String>,
+    pub pendingSince: Option<u64>, // epoch seconds
+    pub lastError: Option<String>, // texto sanitizado
+    pub reason: Option<String>,    // "scheduled" | "compromise" | "policy" | etc
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct DidVerkeyHistoryItem {
+    pub verkey: String,
+    pub from: u64,                   // epoch seconds (início de vigência local)
+    pub to: Option<u64>,             // epoch seconds (fim); None = ainda vigente (normalmente só 1)
+    pub activatedBy: Option<String>, // submitterDid usado no commit (se aplicável)
+    pub ledgerTxn: Option<String>,   // opcional: seqNo/txnId se você coletar
+    pub reason: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub struct RotateDidPrepareOpts {
+    pub reason: Option<String>,
+    pub keepOldKeys: Option<bool>, // default true (recomendado)
+}
+
+#[derive(Debug, Deserialize, Default)]
+pub struct RotateDidCommitOpts {
+    pub submitterDid: Option<String>, // obrigatório se for publicar no ledger e a rede exigir
+    pub role: Option<String>, // "ENDORSER|TRUSTEE|STEWARD|none" (se você usa isso na escrita)
+    pub force: Option<bool>,  // se true: commit mesmo se local/ledger divergirem (com cautela)
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct DidVerkeyIndexValue {
+    pub did: String,
+    pub verkey: String,
+    pub isCurrent: bool,
+    pub createdAt: u64,
+    pub deactivatedAt: Option<u64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct DidRecordValue {
+    pub did: String,
+    pub verkey: String, // current
+    pub alias: Option<String>,
+    pub createdAt: u64,
+    pub isPublic: bool,
+    pub role: Option<String>,
+    pub origin: Option<String>,
+
+    #[serde(default)]
+    pub rotation: Option<DidRotationState>,
+
+    #[serde(default)]
+    pub verkeyHistory: Vec<DidVerkeyHistoryItem>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct DidDriftReportItem {
+    pub did: String,
+    pub localVerkey: Option<String>,
+    pub ledgerVerkey: Option<String>,
+    pub status: String, // "in_sync" | "local_ahead" | "ledger_ahead" | "divergent" | "not_on_ledger"
+    pub details: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct DidDriftReport {
+    pub checkedAt: u64,
+    pub items: Vec<DidDriftReportItem>,
+}
+
+async fn upsert_did_vk_index(
+    session: &mut aries_askar::Session,
+    verkey: &str,
+    did: &str,
+    is_current: bool,
+    created_at: u64,
+) -> Result<()> {
+    // value do índice
+    let idx_val = serde_json::json!({
+        "did": did,
+        "verkey": verkey,
+        "isCurrent": is_current,
+        "createdAt": created_at,
+        "deactivatedAt": serde_json::Value::Null
+    });
+
+    // tags (se quiser filtrar)
+    let idx_tags = vec![
+        EntryTag::Encrypted("did".to_string(), did.to_string()),
+        EntryTag::Encrypted(
+            "isCurrent".to_string(),
+            if is_current { "true" } else { "false" }.to_string(),
+        ),
+    ];
+
+    // se já existe, remove+insert (askar não tem update)
+    let exists = session
+        .fetch("did_vk", verkey, false)
+        .await
+        .map_err(|e| Error::from_reason(format!("Erro fetch did_vk: {}", e)))?
+        .is_some();
+
+    if exists {
+        session
+            .remove("did_vk", verkey)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro remove did_vk: {}", e)))?;
+    }
+
+    session
+        .insert(
+            "did_vk",
+            verkey,
+            idx_val.to_string().as_bytes(),
+            Some(&idx_tags),
+            None,
+        )
+        .await
+        .map_err(|e| Error::from_reason(format!("Erro insert did_vk: {}", e)))?;
+
+    Ok(())
 }
 
 #[napi]
@@ -113,6 +243,79 @@ impl IndyAgent {
     }
 
     // ----------------------------------------------------------
+    // #[napi]
+    // pub async unsafe fn get_did_by_verkey(&self, verkey: String) -> Result<String> {
+    //     // 1) Validar store aberta
+    //     let store = match &self.store {
+    //         Some(s) => s.clone(),
+    //         None => return Err(Error::from_reason("Carteira fechada!")),
+    //     };
+
+    //     // 2) Abrir sessão efêmera
+    //     let mut session = store
+    //         .session(None)
+    //         .await
+    //         .map_err(|e| Error::from_reason(format!("Erro Sessão: {}", e)))?;
+
+    //     // 3) Buscar por tag "verkey"
+    //     let filter = TagFilter::is_eq("verkey", verkey.clone());
+
+    //     // Buscamos no máximo 2 para detectar duplicidade
+    //     let entries = session
+    //         .fetch_all(Some("did"), Some(filter), None, None, false, false)
+    //         .await
+    //         .map_err(|e| Error::from_reason(format!("Erro busca por verkey: {}", e)))?;
+
+    //     if entries.is_empty() {
+    //         return Err(Error::from_reason(format!(
+    //             "Verkey não encontrada na carteira: {}",
+    //             verkey
+    //         )));
+    //     }
+
+    //     if entries.len() > 1 {
+    //         return Err(Error::from_reason(format!(
+    //             "Verkey duplicada na carteira ({} registros): {}",
+    //             entries.len(),
+    //             verkey
+    //         )));
+    //     }
+
+    //     // 4) Converter bytes -> string
+    //     let entry = &entries[0];
+    //     let s = String::from_utf8(entry.value.to_vec())
+    //         .map_err(|e| Error::from_reason(format!("Erro UTF-8 no registro DID: {}", e)))?;
+
+    //     // 5) Parsear JSON (fallback se vier algo inesperado)
+    //     let mut val: serde_json::Value = match serde_json::from_str(&s) {
+    //         Ok(v) => v,
+    //         Err(_) => json!({
+    //             "verkey": verkey,
+    //             "raw": s
+    //         }),
+    //     };
+
+    //     // 6) Hardening: remover possíveis campos sensíveis
+    //     if let Some(obj) = val.as_object_mut() {
+    //         obj.remove("seed");
+    //         obj.remove("seedHex");
+    //         obj.remove("seedB64");
+    //         obj.remove("privateKey");
+    //         obj.remove("secret");
+    //     }
+
+    //     // 7) Garantir que "verkey" esteja presente (compat com legados)
+    //     if val.get("verkey").is_none() {
+    //         if let Some(obj) = val.as_object_mut() {
+    //             obj.insert("verkey".to_string(), serde_json::Value::String(verkey));
+    //         }
+    //     }
+
+    //     // 8) Retornar JSON
+    //     serde_json::to_string(&val)
+    //         .map_err(|e| Error::from_reason(format!("Erro serializar DID: {}", e)))
+    // }
+
     #[napi]
     pub async unsafe fn get_did_by_verkey(&self, verkey: String) -> Result<String> {
         // 1) Validar store aberta
@@ -127,10 +330,79 @@ impl IndyAgent {
             .await
             .map_err(|e| Error::from_reason(format!("Erro Sessão: {}", e)))?;
 
-        // 3) Buscar por tag "verkey"
-        let filter = TagFilter::is_eq("verkey", verkey.clone());
+        let verkey_trim = verkey.trim().to_string();
+        if verkey_trim.is_empty() {
+            return Err(Error::from_reason("Verkey vazia."));
+        }
 
-        // Buscamos no máximo 2 para detectar duplicidade
+        // ============================================================
+        // (A) PRIMEIRO: tentar índice novo did_vk (key = verkey)
+        // ============================================================
+        if let Some(idx_entry) = session
+            .fetch("did_vk", &verkey_trim, false)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro fetch did_vk: {}", e)))?
+        {
+            // idx value: {"did": "...", ...}
+            let idx_s = String::from_utf8(idx_entry.value.to_vec())
+                .map_err(|e| Error::from_reason(format!("Erro UTF-8 did_vk: {}", e)))?;
+
+            let idx_val: serde_json::Value = serde_json::from_str(&idx_s)
+                .map_err(|e| Error::from_reason(format!("JSON inválido em did_vk: {}", e)))?;
+
+            let did = idx_val
+                .get("did")
+                .and_then(|x| x.as_str())
+                .ok_or_else(|| Error::from_reason("did_vk sem campo 'did'."))?
+                .to_string();
+
+            // buscar record canônico "did"
+            let did_entry = session
+                .fetch("did", &did, false)
+                .await
+                .map_err(|e| Error::from_reason(format!("Erro fetch DID pelo índice: {}", e)))?
+                .ok_or_else(|| {
+                    Error::from_reason(format!("DID no índice não encontrado: {}", did))
+                })?;
+
+            let s = String::from_utf8(did_entry.value.to_vec())
+                .map_err(|e| Error::from_reason(format!("Erro UTF-8 no registro DID: {}", e)))?;
+
+            let mut val: serde_json::Value = match serde_json::from_str(&s) {
+                Ok(v) => v,
+                Err(_) => json!({ "verkey": verkey_trim, "raw": s }),
+            };
+
+            // hardening
+            if let Some(obj) = val.as_object_mut() {
+                obj.remove("seed");
+                obj.remove("seedHex");
+                obj.remove("seedB64");
+                obj.remove("privateKey");
+                obj.remove("secret");
+            }
+
+            // garantir verkey (current pode ser diferente em rotação; mas aqui devolvemos a do record)
+            // se quiser garantir que a verkey do lookup também apareça, adicione um campo extra:
+            // obj.insert("lookupVerkey", String(verkey_trim).into());
+            if val.get("verkey").is_none() {
+                if let Some(obj) = val.as_object_mut() {
+                    obj.insert(
+                        "verkey".to_string(),
+                        serde_json::Value::String(verkey_trim.clone()),
+                    );
+                }
+            }
+
+            return serde_json::to_string(&val)
+                .map_err(|e| Error::from_reason(format!("Erro serializar DID: {}", e)));
+        }
+
+        // ============================================================
+        // (B) FALLBACK LEGADO: buscar por tag "verkey" no record "did"
+        // ============================================================
+        let filter = TagFilter::is_eq("verkey", verkey_trim.clone());
+
         let entries = session
             .fetch_all(Some("did"), Some(filter), None, None, false, false)
             .await
@@ -139,7 +411,7 @@ impl IndyAgent {
         if entries.is_empty() {
             return Err(Error::from_reason(format!(
                 "Verkey não encontrada na carteira: {}",
-                verkey
+                verkey_trim
             )));
         }
 
@@ -147,25 +419,20 @@ impl IndyAgent {
             return Err(Error::from_reason(format!(
                 "Verkey duplicada na carteira ({} registros): {}",
                 entries.len(),
-                verkey
+                verkey_trim
             )));
         }
 
-        // 4) Converter bytes -> string
         let entry = &entries[0];
         let s = String::from_utf8(entry.value.to_vec())
             .map_err(|e| Error::from_reason(format!("Erro UTF-8 no registro DID: {}", e)))?;
 
-        // 5) Parsear JSON (fallback se vier algo inesperado)
         let mut val: serde_json::Value = match serde_json::from_str(&s) {
             Ok(v) => v,
-            Err(_) => json!({
-                "verkey": verkey,
-                "raw": s
-            }),
+            Err(_) => json!({ "verkey": verkey_trim.clone(), "raw": s }),
         };
 
-        // 6) Hardening: remover possíveis campos sensíveis
+        // hardening
         if let Some(obj) = val.as_object_mut() {
             obj.remove("seed");
             obj.remove("seedHex");
@@ -174,14 +441,84 @@ impl IndyAgent {
             obj.remove("secret");
         }
 
-        // 7) Garantir que "verkey" esteja presente (compat com legados)
         if val.get("verkey").is_none() {
             if let Some(obj) = val.as_object_mut() {
-                obj.insert("verkey".to_string(), serde_json::Value::String(verkey));
+                obj.insert(
+                    "verkey".to_string(),
+                    serde_json::Value::String(verkey_trim.clone()),
+                );
             }
         }
 
-        // 8) Retornar JSON
+        // ============================================================
+        // (C) MIGRAÇÃO LAZY: criar did_vk para essa verkey encontrada (best-effort)
+        // ============================================================
+        // Precisamos extrair o DID do registro retornado.
+        // No seu formato atual, o JSON sempre tem "did".
+        let did_str_opt = val
+            .get("did")
+            .and_then(|x| x.as_str())
+            .map(|s| s.to_string());
+
+        if let Some(did_str) = did_str_opt {
+            // createdAt pode não existir em legados; fallback = now
+            let now = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+
+            let created_at = val.get("createdAt").and_then(|x| x.as_u64()).unwrap_or(now);
+
+            // inserir índice (remove+insert se existir)
+            let idx_val = json!({
+                "did": did_str,
+                "verkey": verkey_trim,
+                "isCurrent": true,
+                "createdAt": created_at,
+                "deactivatedAt": serde_json::Value::Null
+            });
+
+            let idx_tags = vec![
+                EntryTag::Encrypted(
+                    "did".to_string(),
+                    idx_val["did"].as_str().unwrap_or("").to_string(),
+                ),
+                EntryTag::Encrypted("isCurrent".to_string(), "true".to_string()),
+            ];
+
+            // se já existe, remove
+            let exists = session
+                .fetch("did_vk", idx_val["verkey"].as_str().unwrap_or(""), false)
+                .await
+                .map_err(|e| Error::from_reason(format!("Erro fetch did_vk (lazy): {}", e)))?
+                .is_some();
+
+            if exists {
+                session
+                    .remove("did_vk", idx_val["verkey"].as_str().unwrap_or(""))
+                    .await
+                    .map_err(|e| Error::from_reason(format!("Erro remove did_vk (lazy): {}", e)))?;
+            }
+
+            session
+                .insert(
+                    "did_vk",
+                    idx_val["verkey"].as_str().unwrap_or(""),
+                    idx_val.to_string().as_bytes(),
+                    Some(&idx_tags),
+                    None,
+                )
+                .await
+                .map_err(|e| Error::from_reason(format!("Erro insert did_vk (lazy): {}", e)))?;
+
+            // commit best-effort (se falhar, não impede retorno do DID)
+            if let Err(e) = session.commit().await {
+                // não falha a chamada por causa da migração, só ignora
+                let _ = e;
+            }
+        }
+
+        // 8) Retornar JSON (mesmo que migração lazy falhe)
         serde_json::to_string(&val)
             .map_err(|e| Error::from_reason(format!("Erro serializar DID: {}", e)))
     }
@@ -740,8 +1077,7 @@ impl IndyAgent {
             .map_err(|e| Error::from_reason(format!("Erro verkey bytes: {}", e)))?;
 
         // DID Indy: primeiros 16 bytes da verkey em base58
-        let did_bytes = &verkey_bytes[0..16];
-        let did = bs58::encode(did_bytes).into_string();
+        let did = bs58::encode(&verkey_bytes[0..16]).into_string();
         let verkey = bs58::encode(&verkey_bytes).into_string();
 
         // 5) Salvar chave privada no KMS (idempotente)
@@ -758,7 +1094,7 @@ impl IndyAgent {
                 .map_err(|e| Error::from_reason(format!("Erro salvar Key: {}", e)))?;
         }
 
-        // 6) Salvar DidRecord v1 já padronizado (sem seed)
+        // 6) Salvar DidRecord (compat v1, com tags completas)
         let did_record = json!({
             "did": did,
             "verkey": verkey,
@@ -771,12 +1107,12 @@ impl IndyAgent {
             "role": serde_json::Value::Null
         });
 
+        let did_str = did_record["did"].as_str().unwrap_or("").to_string();
+        let verkey_str = did_record["verkey"].as_str().unwrap_or("").to_string();
+
         let tags = vec![
             EntryTag::Encrypted("type".to_string(), "own".to_string()),
-            EntryTag::Encrypted(
-                "verkey".to_string(),
-                did_record["verkey"].as_str().unwrap_or("").to_string(),
-            ),
+            EntryTag::Encrypted("verkey".to_string(), verkey_str.clone()),
             EntryTag::Encrypted(
                 "alias".to_string(),
                 did_record["alias"].as_str().unwrap_or("").to_string(),
@@ -787,9 +1123,7 @@ impl IndyAgent {
             EntryTag::Encrypted("role".to_string(), "none".to_string()),
         ];
 
-        let did_str = did_record["did"].as_str().unwrap_or("").to_string();
-        let verkey_str = did_record["verkey"].as_str().unwrap_or("").to_string();
-
+        // Idempotência: se já existe, não duplica (mas garante did_vk)
         let did_exists = session
             .fetch("did", &did_str, false)
             .await
@@ -808,6 +1142,11 @@ impl IndyAgent {
                 .await
                 .map_err(|e| Error::from_reason(format!("Erro salvar DID record: {}", e)))?;
         }
+
+        // 6.1) Garantir índice did_vk (sempre)
+        upsert_did_vk_index(&mut session, &verkey_str, &did_str, true, created_at)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro did_vk: {}", e)))?;
 
         // 7) Commit do DID local primeiro
         session
@@ -845,12 +1184,10 @@ impl IndyAgent {
                 Error::from_reason(format!("Falha ao resolver submitterDid no ledger: {}", e))
             })?;
 
-            // Tenta extrair role do GET_NYM (em Indy, data pode vir como string JSON)
             let role_ok = (|| -> Option<bool> {
                 let root: serde_json::Value = serde_json::from_str(&submitter_nym).ok()?;
                 let data = root.get("result")?.get("data")?;
 
-                // data pode vir como string JSON ou objeto
                 let data_obj: serde_json::Value = if data.is_string() {
                     serde_json::from_str::<serde_json::Value>(data.as_str()?).ok()?
                 } else {
@@ -859,7 +1196,6 @@ impl IndyAgent {
 
                 let role_val = data_obj.get("role")?;
 
-                // Aceita "0" (trustee) ou "TRUSTEE"
                 if role_val.is_string() {
                     let s = role_val.as_str()?.to_uppercase();
                     return Some(s == "TRUSTEE" || s == "0");
@@ -880,7 +1216,7 @@ impl IndyAgent {
             }
         }
 
-        // 9.2) Montar NYM (mesma lógica do register_did_on_ledger, sem Env)
+        // 9.2) Montar NYM
         let rb = indy_vdr::ledger::RequestBuilder::new(indy_vdr::pool::ProtocolVersion::Node1_4);
 
         // A) TAA
@@ -1001,7 +1337,6 @@ impl IndyAgent {
             .await
             .map_err(|e| Error::from_reason(format!("Erro sessão wallet (update DID): {}", e)))?;
 
-        // Buscar o record atual para preservar createdAt/alias
         let current = session3
             .fetch("did", &did_str, false)
             .await
@@ -1024,11 +1359,11 @@ impl IndyAgent {
         }));
         }
 
-        // Recriar tags (compatível com seu Askar: não há update)
         let alias_final = cur_val
             .get("alias")
             .and_then(|x| x.as_str())
             .unwrap_or("Meu DID");
+
         let role_tag = role_for_ledger
             .clone()
             .unwrap_or_else(|| "none".to_string());
@@ -1043,7 +1378,6 @@ impl IndyAgent {
             EntryTag::Encrypted("role".to_string(), role_tag),
         ];
 
-        // ATENÇÃO: remove+insert no mesmo commit => atômico
         session3
             .remove("did", &did_str)
             .await
@@ -1059,6 +1393,11 @@ impl IndyAgent {
             )
             .await
             .map_err(|e| Error::from_reason(format!("Erro insert DID (update): {}", e)))?;
+
+        // 10.1) Garantir did_vk também no update (idempotente)
+        upsert_did_vk_index(&mut session3, &verkey_str, &did_str, true, created_at)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro did_vk (update): {}", e)))?;
 
         session3
             .commit()
@@ -1099,7 +1438,6 @@ impl IndyAgent {
         // 2) Decode seed -> 32 bytes
         let seed_trim = seed.trim().to_string();
 
-        // helper: decode hex (64 chars)
         fn decode_hex_32(s: &str) -> Option<[u8; 32]> {
             if s.len() != 64 {
                 return None;
@@ -1122,7 +1460,7 @@ impl IndyAgent {
         let seed_bytes: [u8; 32] = if let Some(h) = decode_hex_32(&seed_trim) {
             h
         } else {
-            // Base64 (standard). Se quiser suportar URL-safe também, eu ajusto.
+            // Base64 standard
             let decoded = general_purpose::STANDARD
                 .decode(seed_trim.as_bytes())
                 .map_err(|e| Error::from_reason(format!("Seed inválida (hex/base64): {}", e)))?;
@@ -1147,8 +1485,7 @@ impl IndyAgent {
             .to_public_bytes()
             .map_err(|e| Error::from_reason(format!("Erro obter verkey bytes: {}", e)))?;
 
-        let did_bytes = &verkey_bytes[0..16];
-        let did = bs58::encode(did_bytes).into_string();
+        let did = bs58::encode(&verkey_bytes[0..16]).into_string();
         let verkey = bs58::encode(&verkey_bytes).into_string();
 
         // 4) createdAt
@@ -1163,15 +1500,15 @@ impl IndyAgent {
             .await
             .map_err(|e| Error::from_reason(format!("Erro sessão: {}", e)))?;
 
-        // 6) Idempotência/Conflito:
-        //    - se DID já existe e verkey for diferente => erro
-        //    - se já existe igual => ok (não duplica)
-        let existing = session
+        // 6) Verificar se DID record já existe (fonte de verdade)
+        //    - Se existe com verkey diferente => conflito
+        //    - Se existe igual => idempotente (mas ainda garantimos key e did_vk)
+        let existing_did = session
             .fetch("did", &did, false)
             .await
             .map_err(|e| Error::from_reason(format!("Erro fetch DID: {}", e)))?;
 
-        if let Some(e) = existing {
+        if let Some(e) = existing_did {
             let s = String::from_utf8(e.value.to_vec()).unwrap_or_default();
             if let Ok(ev) = serde_json::from_str::<serde_json::Value>(&s) {
                 let existing_vk = ev.get("verkey").and_then(|x| x.as_str()).unwrap_or("");
@@ -1183,7 +1520,7 @@ impl IndyAgent {
                 }
             }
 
-            // garantir que a key existe no KMS
+            // garantir key no KMS (idempotente)
             let key_exists = session
                 .fetch_key(&verkey, false)
                 .await
@@ -1195,11 +1532,15 @@ impl IndyAgent {
                     .insert_key(&verkey, &key, Some("ed25519"), None, None, None)
                     .await
                     .map_err(|e| Error::from_reason(format!("Erro inserir key: {}", e)))?;
-                session
-                    .commit()
-                    .await
-                    .map_err(|e| Error::from_reason(format!("Erro commit: {}", e)))?;
             }
+
+            // garantir did_vk sempre (mesmo se a key já existia)
+            upsert_did_vk_index(&mut session, &verkey, &did, true, created_at).await?;
+
+            session
+                .commit()
+                .await
+                .map_err(|e| Error::from_reason(format!("Erro commit: {}", e)))?;
 
             let out = json!({
                 "ok": true,
@@ -1208,11 +1549,12 @@ impl IndyAgent {
                 "origin": "imported_seed",
                 "createdAt": created_at
             });
+
             return serde_json::to_string(&out)
                 .map_err(|e| Error::from_reason(format!("Erro serializar retorno: {}", e)));
         }
 
-        // 7) Inserir key no KMS se não existir
+        // 7) DID record não existe: garantir key no KMS
         let key_exists = session
             .fetch_key(&verkey, false)
             .await
@@ -1226,7 +1568,7 @@ impl IndyAgent {
                 .map_err(|e| Error::from_reason(format!("Erro inserir key: {}", e)))?;
         }
 
-        // 8) Inserir DidRecord v1 (type=own, origin=imported_seed)
+        // 8) Inserir DidRecord (mantém compat com v1, mas com campos “catálogo” completos)
         let alias_final = alias.unwrap_or_else(|| "Seed DID".to_string());
 
         let record = json!({
@@ -1268,12 +1610,16 @@ impl IndyAgent {
             .await
             .map_err(|e| Error::from_reason(format!("Erro inserir DID record: {}", e)))?;
 
+        // 9) Garantir did_vk
+        upsert_did_vk_index(&mut session, &verkey, &did, true, created_at).await?;
+
+        // 10) Commit único
         session
             .commit()
             .await
             .map_err(|e| Error::from_reason(format!("Erro commit: {}", e)))?;
 
-        // 9) Retorno
+        // 11) Retorno
         let out = json!({
             "ok": true,
             "did": record["did"],
@@ -1289,7 +1635,7 @@ impl IndyAgent {
     // -------------------------------------------------------------------------------------------
     #[napi]
     pub fn create_own_did(&self, env: Env) -> Result<JsObject> {
-        // 1. Clonar Store (Thread-safe)
+        // 1) Clonar Store (Thread-safe)
         let store = match &self.store {
             Some(s) => s.clone(),
             None => return Err(Error::from_reason("Wallet fechada!")),
@@ -1297,13 +1643,13 @@ impl IndyAgent {
 
         env.execute_tokio_future(
             async move {
-                // 2. Sessão Efêmera
+                // 2) Sessão efêmera
                 let mut session = store
                     .session(None)
                     .await
                     .map_err(|e| napi::Error::from_reason(format!("Erro sessão: {}", e)))?;
 
-                // 3. Gerar Par de Chaves (Ed25519)
+                // 3) Gerar par de chaves (Ed25519)
                 let key = LocalKey::generate_with_rng(KeyAlg::Ed25519, false)
                     .map_err(|e| napi::Error::from_reason(format!("Erro gerar chave: {}", e)))?;
 
@@ -1311,13 +1657,17 @@ impl IndyAgent {
                     .to_public_bytes()
                     .map_err(|e| napi::Error::from_reason(format!("Erro verkey bytes: {}", e)))?;
 
-                // 4. Calcular DID (Padrão Indy: Primeiros 16 bytes da Verkey em Base58)
-                let did_bytes = &verkey_bytes[0..16];
-                let did = bs58::encode(did_bytes).into_string();
+                // 4) Calcular DID (Indy: primeiros 16 bytes da verkey em base58)
+                let did = bs58::encode(&verkey_bytes[0..16]).into_string();
                 let verkey = bs58::encode(&verkey_bytes).into_string();
 
-                // 5. Salvar Chave Privada (KMS)
-                // CORREÇÃO: Removido .unwrap(). Usamos map_err para segurança.
+                // 5) createdAt
+                let created_at = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs();
+
+                // 6) Garantir chave privada no KMS (idempotente)
                 let key_exists = session
                     .fetch_key(&verkey, false)
                     .await
@@ -1331,36 +1681,7 @@ impl IndyAgent {
                         .map_err(|e| napi::Error::from_reason(format!("Erro salvar Key: {}", e)))?;
                 }
 
-                // 6. Salvar Metadados do DID
-                // 6. Salvar Metadados do DID (PR-01: DidRecord v1 completo)
-                let created_at = SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .unwrap_or_default()
-                    .as_secs();
-
-                let metadata = serde_json::json!({
-                    "did": did,
-                    "verkey": verkey,
-                    "method": "sov",
-                    "alias": "Meu DID",
-                    "type": "own",
-                    "origin": "generated",
-                    "createdAt": created_at,
-                    "isPublic": false,
-                    "role": serde_json::Value::Null
-                });
-
-                let tags = vec![
-                    EntryTag::Encrypted("type".to_string(), "own".to_string()),
-                    EntryTag::Encrypted("verkey".to_string(), verkey.clone()),
-                    EntryTag::Encrypted("alias".to_string(), "Meu DID".to_string()),
-                    EntryTag::Encrypted("createdAt".to_string(), created_at.to_string()),
-                    EntryTag::Encrypted("isPublic".to_string(), "false".to_string()),
-                    EntryTag::Encrypted("origin".to_string(), "generated".to_string()),
-                    EntryTag::Encrypted("role".to_string(), "none".to_string()),
-                ];
-
-                // CORREÇÃO: Removido .unwrap() aqui também.
+                // 7) Garantir DID record (idempotente)
                 let did_exists = session
                     .fetch("did", &did, false)
                     .await
@@ -1368,6 +1689,28 @@ impl IndyAgent {
                     .is_some();
 
                 if !did_exists {
+                    let metadata = serde_json::json!({
+                        "did": did,
+                        "verkey": verkey,
+                        "method": "sov",
+                        "alias": "Meu DID",
+                        "type": "own",
+                        "origin": "generated",
+                        "createdAt": created_at,
+                        "isPublic": false,
+                        "role": serde_json::Value::Null
+                    });
+
+                    let tags = vec![
+                        EntryTag::Encrypted("type".to_string(), "own".to_string()),
+                        EntryTag::Encrypted("verkey".to_string(), verkey.clone()),
+                        EntryTag::Encrypted("alias".to_string(), "Meu DID".to_string()),
+                        EntryTag::Encrypted("createdAt".to_string(), created_at.to_string()),
+                        EntryTag::Encrypted("isPublic".to_string(), "false".to_string()),
+                        EntryTag::Encrypted("origin".to_string(), "generated".to_string()),
+                        EntryTag::Encrypted("role".to_string(), "none".to_string()),
+                    ];
+
                     session
                         .insert(
                             "did",
@@ -1382,14 +1725,18 @@ impl IndyAgent {
                         })?;
                 }
 
-                // 7. Commit (Obrigatório)
+                // 8) Garantir índice did_vk (verkey -> did)
+                upsert_did_vk_index(&mut session, &verkey, &did, true, created_at)
+                    .await
+                    .map_err(|e| napi::Error::from_reason(format!("Erro did_vk: {}", e)))?;
+
+                // 9) Commit (obrigatório)
                 session
                     .commit()
                     .await
                     .map_err(|e| napi::Error::from_reason(format!("Erro commit DID: {}", e)))?;
 
-                let result = vec![did, verkey];
-                Ok(result)
+                Ok(vec![did, verkey])
             },
             |&mut env, data| {
                 let mut arr = env.create_array(2)?;
@@ -1574,7 +1921,7 @@ impl IndyAgent {
             .map_err(|e| Error::from_reason(format!("Erro serializar lista: {}", e)))
     }
 
-        // --------------------------------------------------------
+    // --------------------------------------------------------
     // OTIMIZAÇÃO: Alterado de &mut self para &self
     // Isso permite múltiplas consultas simultâneas ao ledger sem travar o agente.
     #[napi]
@@ -1670,7 +2017,13 @@ impl IndyAgent {
                 }
                 let secret_bytes = seed.as_bytes();
 
-                // 1. Gerar chaves
+                // Timestamp
+                let created_at = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs();
+
+                // 1) Gerar chaves
                 let key = LocalKey::from_secret_bytes(KeyAlg::Ed25519, secret_bytes)
                     .map_err(|e| napi::Error::from_reason(e.to_string()))?;
 
@@ -1681,56 +2034,104 @@ impl IndyAgent {
                 let verkey = bs58::encode(&pub_bytes).into_string();
                 let did = bs58::encode(&pub_bytes[0..16]).into_string();
 
-                // 2. Verificar duplicidade (Idempotência)
+                // 2) Verificar existência do DID record (fonte de verdade)
+                let did_entry = session.fetch("did", &did, false).await.map_err(|e| {
+                    napi::Error::from_reason(format!("Erro ao verificar DID record: {}", e))
+                })?;
+
+                // 3) Garantir que a key exista no KMS (idempotente)
                 let existing_key = session.fetch_key(&verkey, false).await.map_err(|e| {
                     napi::Error::from_reason(format!("Erro ao verificar chave: {}", e))
                 })?;
 
-                if existing_key.is_some() {
-                    return Ok(vec![did, verkey]);
+                if existing_key.is_none() {
+                    session
+                        .insert_key(&verkey, &key, Some("ed25519"), None, None, None)
+                        .await
+                        .map_err(|e| napi::Error::from_reason(e.to_string()))?;
                 }
 
-                // 3. Inserir Chave
-                session
-                    .insert_key(&verkey, &key, Some("ed25519"), None, None, None)
-                    .await
-                    .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+                // 4) Se DID record não existe, inserir (v1 legado)
+                if did_entry.is_none() {
+                    let record = serde_json::json!({
+                        "did": did,
+                        "verkey": verkey.clone(),
+                        "metadata": "Imported via Seed (Indicio)",
+                        // campos opcionais para alinhar com o resto do catálogo (não quebra nada)
+                        "type": "own",
+                        "origin": "imported_seed",
+                        "createdAt": created_at,
+                        "isPublic": false,
+                        "role": serde_json::Value::Null
+                    });
 
-                // 4. Preparar Metadados
-                // CLONE 1: Clonamos verkey aqui para não perder a posse dela
-                let record = serde_json::json!({
+                    let tags = vec![
+                        EntryTag::Encrypted("type".to_string(), "own".to_string()),
+                        EntryTag::Encrypted("verkey".to_string(), verkey.clone()),
+                        EntryTag::Encrypted("createdAt".to_string(), created_at.to_string()),
+                        EntryTag::Encrypted("isPublic".to_string(), "false".to_string()),
+                        EntryTag::Encrypted("origin".to_string(), "imported_seed".to_string()),
+                        EntryTag::Encrypted("role".to_string(), "none".to_string()),
+                    ];
+
+                    session
+                        .insert(
+                            "did",
+                            &did,
+                            record.to_string().as_bytes(),
+                            Some(&tags),
+                            None,
+                        )
+                        .await
+                        .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+                }
+
+                // 5) Garantir índice did_vk (verkey -> did)
+                // (categoria "did_vk", key = verkey)
+                let idx_val = serde_json::json!({
                     "did": did,
                     "verkey": verkey.clone(),
-                    "metadata": "Imported via Seed (Indicio)"
+                    "isCurrent": true,
+                    "createdAt": created_at,
+                    "deactivatedAt": serde_json::Value::Null
                 });
 
-                // 5. Preparar Tags
-                // CLONE 2: Clonamos verkey AQUI TAMBÉM.
-                // Isso resolve o erro "use of moved value" no return final.
-                let tags = vec![
-                    EntryTag::Encrypted("type".to_string(), "own".to_string()),
-                    EntryTag::Encrypted("verkey".to_string(), verkey.clone()),
+                let idx_tags = vec![
+                    EntryTag::Encrypted("did".to_string(), did.clone()),
+                    EntryTag::Encrypted("isCurrent".to_string(), "true".to_string()),
                 ];
 
-                // 6. Inserir Registro (Usando metadata e tags)
+                let idx_exists = session
+                    .fetch("did_vk", &verkey, false)
+                    .await
+                    .map_err(|e| {
+                        napi::Error::from_reason(format!("Erro ao verificar did_vk: {}", e))
+                    })?
+                    .is_some();
+
+                if idx_exists {
+                    session.remove("did_vk", &verkey).await.map_err(|e| {
+                        napi::Error::from_reason(format!("Erro remove did_vk: {}", e))
+                    })?;
+                }
+
                 session
                     .insert(
-                        "did",
-                        &did,
-                        record.to_string().as_bytes(),
-                        Some(&tags),
+                        "did_vk",
+                        &verkey,
+                        idx_val.to_string().as_bytes(),
+                        Some(&idx_tags),
                         None,
                     )
                     .await
-                    .map_err(|e| napi::Error::from_reason(e.to_string()))?;
+                    .map_err(|e| napi::Error::from_reason(format!("Erro insert did_vk: {}", e)))?;
 
-                // 7. Commit
+                // 6) Commit (único)
                 session
                     .commit()
                     .await
                     .map_err(|e| napi::Error::from_reason(e.to_string()))?;
 
-                // RETORNO: Aqui usamos a variável original 'verkey' (Move final)
                 Ok(vec![did, verkey])
             },
             |&mut env, data| {
@@ -2385,4 +2786,580 @@ impl IndyAgent {
             .map_err(|e| Error::from_reason(format!("Erro serializar get_primary_did: {}", e)))
     }
 
+    // MÉTODOS PARA A ROTAÇÃO DE CHAVES DO DID
+
+    #[napi]
+    pub async unsafe fn rotate_did_verkey_prepare(
+        &mut self,
+        did: String,
+        opts_json: Option<String>,
+    ) -> Result<String> {
+        let store = match &self.store {
+            Some(s) => s.clone(),
+            None => return Err(Error::from_reason("Wallet fechada!")),
+        };
+
+        let opts: RotateDidPrepareOpts = match opts_json {
+            Some(s) if !s.trim().is_empty() => serde_json::from_str(&s)
+                .map_err(|e| Error::from_reason(format!("opts_json inválido: {}", e)))?,
+            _ => RotateDidPrepareOpts::default(),
+        };
+
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        let did_trim = did.trim().to_string();
+        if did_trim.is_empty() {
+            return Err(Error::from_reason("did vazio."));
+        }
+
+        let mut session = store
+            .session(None)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro sessão: {}", e)))?;
+
+        // 1) carregar DID record
+        let entry = session
+            .fetch("did", &did_trim, false)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro fetch DID: {}", e)))?
+            .ok_or_else(|| Error::from_reason(format!("DID não encontrado: {}", did_trim)))?;
+
+        let s = String::from_utf8(entry.value.to_vec())
+            .map_err(|e| Error::from_reason(format!("Erro UTF-8 DID record: {}", e)))?;
+
+        let mut rec: serde_json::Value = serde_json::from_str(&s)
+            .map_err(|e| Error::from_reason(format!("JSON inválido em DID record: {}", e)))?;
+
+        // valida: só own
+        let typ = rec.get("type").and_then(|x| x.as_str()).unwrap_or("own");
+        if typ != "own" {
+            return Err(Error::from_reason(
+                "Rotação suportada apenas para DIDs type=own.",
+            ));
+        }
+
+        // verkey atual
+        let cur_vk = rec
+            .get("verkey")
+            .and_then(|x| x.as_str())
+            .ok_or_else(|| Error::from_reason("DID record sem verkey."))?
+            .to_string();
+
+        // 2) se já existe pendência, não sobrescreve
+        let rot_status = rec
+            .get("rotation")
+            .and_then(|r| r.get("status"))
+            .and_then(|x| x.as_str())
+            .unwrap_or("none");
+
+        if rot_status != "none" {
+            return Err(Error::from_reason(format!(
+                "Rotação já está pendente (status={}). Cancele ou faça commit.",
+                rot_status
+            )));
+        }
+
+        // 3) gerar nova chave (pending)
+        let new_key = LocalKey::generate_with_rng(KeyAlg::Ed25519, false)
+            .map_err(|e| Error::from_reason(format!("Erro gerar chave: {}", e)))?;
+
+        let new_vk_bytes = new_key
+            .to_public_bytes()
+            .map_err(|e| Error::from_reason(format!("Erro public bytes: {}", e)))?;
+
+        let pending_vk = bs58::encode(&new_vk_bytes).into_string();
+
+        // 4) salvar chave no KMS (idempotente)
+        let exists = session
+            .fetch_key(&pending_vk, false)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro check key: {}", e)))?
+            .is_some();
+
+        if !exists {
+            session
+                .insert_key(&pending_vk, &new_key, Some("ed25519"), None, None, None)
+                .await
+                .map_err(|e| Error::from_reason(format!("Erro insert_key: {}", e)))?;
+        }
+
+        // 5) garantir verkeyHistory existe
+        let created_at = rec.get("createdAt").and_then(|x| x.as_u64()).unwrap_or(now);
+
+        if rec.get("verkeyHistory").is_none() {
+            rec["verkeyHistory"] = serde_json::json!([{
+                "verkey": cur_vk,
+                "from": created_at,
+                "to": serde_json::Value::Null,
+                "activatedBy": serde_json::Value::Null,
+                "ledgerTxn": serde_json::Value::Null,
+                "reason": "initial"
+            }]);
+        }
+
+        // 6) set rotation state
+        rec["rotation"] = serde_json::json!({
+            "status": "pending_local",
+            "pendingVerkey": pending_vk,
+            "pendingSince": now,
+            "lastError": serde_json::Value::Null,
+            "reason": opts.reason
+        });
+
+        // 7) regravar DID record (remove+insert)
+        // tags: manter as que você já usa (verkey tag continua sendo a ATUAL!)
+        let alias_tag = rec
+            .get("alias")
+            .and_then(|x| x.as_str())
+            .unwrap_or("Meu DID");
+        let role_tag = rec.get("role").and_then(|x| x.as_str()).unwrap_or("none");
+
+        let is_public = rec
+            .get("isPublic")
+            .and_then(|x| x.as_bool())
+            .unwrap_or(false);
+
+        let tags = vec![
+            EntryTag::Encrypted("type".to_string(), "own".to_string()),
+            EntryTag::Encrypted(
+                "verkey".to_string(),
+                rec["verkey"].as_str().unwrap_or("").to_string(),
+            ),
+            EntryTag::Encrypted("alias".to_string(), alias_tag.to_string()),
+            EntryTag::Encrypted("createdAt".to_string(), created_at.to_string()),
+            EntryTag::Encrypted(
+                "isPublic".to_string(),
+                if is_public { "true" } else { "false" }.to_string(),
+            ),
+            EntryTag::Encrypted(
+                "origin".to_string(),
+                rec.get("origin")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or("generated")
+                    .to_string(),
+            ),
+            EntryTag::Encrypted("role".to_string(), role_tag.to_string()),
+            EntryTag::Encrypted("hasRotationPending".to_string(), "true".to_string()),
+        ];
+
+        session
+            .remove("did", &did_trim)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro remove DID: {}", e)))?;
+
+        session
+            .insert(
+                "did",
+                &did_trim,
+                rec.to_string().as_bytes(),
+                Some(&tags),
+                None,
+            )
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro insert DID: {}", e)))?;
+
+        // 8) índice did_vk:
+        // - current continua current
+        upsert_did_vk_index(
+            &mut session,
+            rec["verkey"].as_str().unwrap_or(""),
+            &did_trim,
+            true,
+            created_at,
+        )
+        .await
+        .map_err(|e| Error::from_reason(format!("Erro did_vk current: {}", e)))?;
+
+        // - pending entra como não-current (para lookup/diagnóstico)
+        upsert_did_vk_index(
+            &mut session,
+            rec["rotation"]["pendingVerkey"].as_str().unwrap_or(""),
+            &did_trim,
+            false,
+            now,
+        )
+        .await
+        .map_err(|e| Error::from_reason(format!("Erro did_vk pending: {}", e)))?;
+
+        session
+            .commit()
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro commit: {}", e)))?;
+
+        let out = json!({
+            "ok": true,
+            "did": did_trim,
+            "currentVerkey": rec["verkey"],
+            "pendingVerkey": rec["rotation"]["pendingVerkey"],
+            "status": "pending_local",
+            "pendingSince": now,
+            "reason": opts.reason
+        });
+
+        serde_json::to_string(&out)
+            .map_err(|e| Error::from_reason(format!("Erro serializar retorno: {}", e)))
+    }
+
+    #[napi]
+    pub async unsafe fn rotate_did_verkey_commit(
+        &mut self,
+        _genesis_file: String,
+        did: String,
+        opts_json: String,
+    ) -> Result<String> {
+        let store = match &self.store {
+            Some(s) => s.clone(),
+            None => return Err(Error::from_reason("Wallet fechada!")),
+        };
+
+        let pool = match &self.pool {
+            Some(p) => p.clone(),
+            None => {
+                return Err(Error::from_reason(
+                    "Não conectado à rede. Execute connect_network antes.",
+                ))
+            }
+        };
+
+        let opts: RotateDidCommitOpts = serde_json::from_str(&opts_json)
+            .map_err(|e| Error::from_reason(format!("opts_json inválido: {}", e)))?;
+
+        let did_to_rotate = did.clone();
+
+        let submitter_did = opts
+            .submitterDid
+            .clone()
+            .unwrap_or_default()
+            .trim()
+            .to_string();
+
+        if submitter_did != did_to_rotate {
+            return Err(Error::from_reason(
+        "Rotação de verkey deve ser assinada pelo próprio DID (owner). Use submitterDid = did.",
+    ));
+        }
+
+        if submitter_did.is_empty() {
+            return Err(Error::from_reason(
+                "rotate commit exige submitterDid (DID com permissão no ledger).",
+            ));
+        }
+
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        let did_trim = did.trim().to_string();
+        if did_trim.is_empty() {
+            return Err(Error::from_reason("did vazio."));
+        }
+
+        // 1) carregar DID record
+        let mut session = store
+            .session(None)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro sessão: {}", e)))?;
+
+        let entry = session
+            .fetch("did", &did_trim, false)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro fetch DID: {}", e)))?
+            .ok_or_else(|| Error::from_reason(format!("DID não encontrado: {}", did_trim)))?;
+
+        let s = String::from_utf8(entry.value.to_vec())
+            .map_err(|e| Error::from_reason(format!("Erro UTF-8 DID record: {}", e)))?;
+
+        let mut rec: serde_json::Value = serde_json::from_str(&s)
+            .map_err(|e| Error::from_reason(format!("JSON inválido em DID record: {}", e)))?;
+
+        // validações
+        let typ = rec.get("type").and_then(|x| x.as_str()).unwrap_or("own");
+        if typ != "own" {
+            return Err(Error::from_reason(
+                "Rotação suportada apenas para DIDs type=own.",
+            ));
+        }
+
+        let is_public = rec
+            .get("isPublic")
+            .and_then(|x| x.as_bool())
+            .unwrap_or(false);
+        if !is_public && opts.force.unwrap_or(false) != true {
+            return Err(Error::from_reason("DID não está marcado como público. Use force=true se você realmente quer tentar commit mesmo assim."));
+        }
+
+        let cur_vk = rec
+            .get("verkey")
+            .and_then(|x| x.as_str())
+            .ok_or_else(|| Error::from_reason("DID record sem verkey."))?
+            .to_string();
+
+        let pending_vk = rec
+        .get("rotation")
+        .and_then(|r| r.get("pendingVerkey"))
+        .and_then(|x| x.as_str())
+        .ok_or_else(|| Error::from_reason("Não há rotação pendente (pendingVerkey ausente). Execute rotateDidVerkeyPrepare antes."))?
+        .to_string();
+
+        if pending_vk == cur_vk {
+            return Err(Error::from_reason(
+                "pendingVerkey é igual à verkey atual (estado inválido).",
+            ));
+        }
+
+        // garantir que temos a key privada da pending_vk no KMS
+        let _pending_key_entry = session
+            .fetch_key(&pending_vk, false)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro fetch_key(pending): {}", e)))?
+            .ok_or_else(|| {
+                Error::from_reason("Chave privada da pendingVerkey não encontrada no KMS.")
+            })?;
+
+        // 2) montar NYM (update verkey do DID)
+        let rb = indy_vdr::ledger::RequestBuilder::new(indy_vdr::pool::ProtocolVersion::Node1_4);
+
+        // TAA (mesmo padrão do create_did_v2)
+        let taa_req = rb
+            .build_get_txn_author_agreement_request(None, None)
+            .map_err(|e| Error::from_reason(format!("Erro build TAA req: {}", e)))?;
+
+        let taa_resp = send_request_async(&pool, taa_req).await?;
+        let taa_val: serde_json::Value = serde_json::from_str(&taa_resp)
+            .map_err(|e| Error::from_reason(format!("Erro parse TAA response: {}", e)))?;
+
+        let taa_acceptance = if !taa_val["result"]["data"].is_null() {
+            let text = taa_val["result"]["data"]["text"].as_str();
+            let version = taa_val["result"]["data"]["version"].as_str();
+            let digest = taa_val["result"]["data"]["digest"].as_str();
+
+            Some(
+                rb.prepare_txn_author_agreement_acceptance_data(
+                    text,
+                    version,
+                    digest,
+                    "wallet_agreement",
+                    now,
+                )
+                .map_err(|e| Error::from_reason(format!("Erro prepare TAA data: {}", e)))?,
+            )
+        } else {
+            None
+        };
+
+        // Role enum opcional (se você usa)
+        let role_norm_up = opts
+            .role
+            .clone()
+            .unwrap_or_else(|| "none".to_string())
+            .trim()
+            .to_uppercase();
+        let role_enum = match role_norm_up.as_str() {
+            "ENDORSER" => Some(indy_vdr::ledger::constants::UpdateRole::Set(
+                indy_vdr::ledger::constants::LedgerRole::Endorser,
+            )),
+            "TRUSTEE" => Some(indy_vdr::ledger::constants::UpdateRole::Set(
+                indy_vdr::ledger::constants::LedgerRole::Trustee,
+            )),
+            "STEWARD" => Some(indy_vdr::ledger::constants::UpdateRole::Set(
+                indy_vdr::ledger::constants::LedgerRole::Steward,
+            )),
+            _ => None,
+        };
+
+        let submitter = indy_vdr::utils::did::DidValue(submitter_did.clone());
+        let target = indy_vdr::utils::did::DidValue(did_trim.clone());
+
+        let mut req = rb
+            .build_nym_request(
+                &submitter,
+                &target,
+                Some(pending_vk.clone()),
+                None,
+                role_enum,
+                None,
+                None,
+            )
+            .map_err(|e| Error::from_reason(format!("Erro build NYM (rotate): {}", e)))?;
+
+        if let Some(taa) = taa_acceptance {
+            req.set_txn_author_agreement_acceptance(&taa)
+                .map_err(|e| Error::from_reason(format!("Erro anexando TAA: {}", e)))?;
+        }
+
+        // 3) assinar com submitter (igual create_did_v2)
+        // carregar did do submitter e key
+        let did_entry = session
+            .fetch("did", &submitter_did, false)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro fetch submitter DID: {}", e)))?
+            .ok_or_else(|| {
+                Error::from_reason(format!("DID Submitter {} não encontrado", submitter_did))
+            })?;
+
+        let did_json: serde_json::Value = serde_json::from_slice(&did_entry.value)
+            .map_err(|e| Error::from_reason(format!("JSON inválido no submitter DID: {}", e)))?;
+
+        let submitter_vk_ref = did_json["verkey"]
+            .as_str()
+            .ok_or_else(|| Error::from_reason("Campo verkey ausente no registro do submitter"))?;
+
+        let submitter_key_entry = session
+            .fetch_key(submitter_vk_ref, false)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro fetch key submitter: {}", e)))?
+            .ok_or_else(|| Error::from_reason("Chave privada do submitter não encontrada"))?;
+
+        let submitter_local_key = submitter_key_entry
+            .load_local_key()
+            .map_err(|e| Error::from_reason(format!("Erro load key submitter: {}", e)))?;
+
+        let signature_input = req
+            .get_signature_input()
+            .map_err(|e| Error::from_reason(format!("Erro sig input: {}", e)))?;
+
+        let signature = submitter_local_key
+            .sign_message(signature_input.as_bytes(), None)
+            .map_err(|e| Error::from_reason(format!("Erro assinando: {}", e)))?;
+
+        req.set_signature(&signature)
+            .map_err(|e| Error::from_reason(format!("Erro set sig: {}", e)))?;
+
+        // 4) enviar
+        let ledger_response = send_request_async(&pool, req).await?;
+
+        // 5) atualizar catálogo local (record + histórico + índices)
+        let created_at = rec.get("createdAt").and_then(|x| x.as_u64()).unwrap_or(now);
+
+        // garantir verkeyHistory
+        let hist = rec.get("verkeyHistory").cloned().unwrap_or_else(|| {
+            serde_json::json!([{
+                "verkey": cur_vk,
+                "from": created_at,
+                "to": serde_json::Value::Null,
+                "activatedBy": serde_json::Value::Null,
+                "ledgerTxn": serde_json::Value::Null,
+                "reason": "initial"
+            }])
+        });
+        rec["verkeyHistory"] = hist;
+
+        // fechar item atual (to=now) e criar novo
+        // capture o reason ANTES do borrow mutável do array
+        let rotation_reason = rec
+            .get("rotation")
+            .and_then(|r| r.get("reason"))
+            .cloned()
+            .unwrap_or(serde_json::Value::Null);
+
+        // fechar item atual (to=now) e criar novo
+        if let Some(arr) = rec["verkeyHistory"].as_array_mut() {
+            // fecha o current que está aberto
+            for it in arr.iter_mut() {
+                let to_is_none =
+                    it.get("to").map(|x| x.is_null()).unwrap_or(false) || it.get("to").is_none();
+                let vk = it.get("verkey").and_then(|x| x.as_str()).unwrap_or("");
+                if to_is_none && vk == cur_vk {
+                    it["to"] = serde_json::Value::Number(serde_json::Number::from(now));
+                    break;
+                }
+            }
+
+            arr.push(serde_json::json!({
+                "verkey": pending_vk,
+                "from": now,
+                "to": serde_json::Value::Null,
+                "activatedBy": submitter_did,
+                "ledgerTxn": serde_json::Value::Null,
+                "reason": rotation_reason
+            }));
+        }
+
+        // atualizar verkey atual
+        rec["verkey"] = serde_json::Value::String(pending_vk.clone());
+
+        // limpar rotação
+        rec["rotation"] = serde_json::json!({
+            "status": "none",
+            "pendingVerkey": serde_json::Value::Null,
+            "pendingSince": serde_json::Value::Null,
+            "lastError": serde_json::Value::Null,
+            "reason": serde_json::Value::Null
+        });
+
+        // tags (verkey tag = nova)
+        let alias_tag = rec
+            .get("alias")
+            .and_then(|x| x.as_str())
+            .unwrap_or("Meu DID");
+        let role_tag = rec.get("role").and_then(|x| x.as_str()).unwrap_or("none");
+
+        let tags3 = vec![
+            EntryTag::Encrypted("type".to_string(), "own".to_string()),
+            EntryTag::Encrypted("verkey".to_string(), pending_vk.clone()),
+            EntryTag::Encrypted("alias".to_string(), alias_tag.to_string()),
+            EntryTag::Encrypted("createdAt".to_string(), created_at.to_string()),
+            EntryTag::Encrypted(
+                "isPublic".to_string(),
+                if is_public { "true" } else { "false" }.to_string(),
+            ),
+            EntryTag::Encrypted(
+                "origin".to_string(),
+                rec.get("origin")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or("generated")
+                    .to_string(),
+            ),
+            EntryTag::Encrypted("role".to_string(), role_tag.to_string()),
+            EntryTag::Encrypted("hasRotationPending".to_string(), "false".to_string()),
+        ];
+
+        // remove+insert atomico
+        session
+            .remove("did", &did_trim)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro remove DID (commit rotate): {}", e)))?;
+
+        session
+            .insert(
+                "did",
+                &did_trim,
+                rec.to_string().as_bytes(),
+                Some(&tags3),
+                None,
+            )
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro insert DID (commit rotate): {}", e)))?;
+
+        // índices:
+        // - antiga vira histórica (isCurrent=false)
+        upsert_did_vk_index(&mut session, &cur_vk, &did_trim, false, created_at)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro did_vk old: {}", e)))?;
+
+        // - nova vira current
+        upsert_did_vk_index(&mut session, &pending_vk, &did_trim, true, now)
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro did_vk new: {}", e)))?;
+
+        session
+            .commit()
+            .await
+            .map_err(|e| Error::from_reason(format!("Erro commit rotate: {}", e)))?;
+
+        let out = json!({
+            "ok": true,
+            "did": did_trim,
+            "oldVerkey": cur_vk,
+            "newVerkey": pending_vk,
+            "ledgerResponse": ledger_response
+        });
+
+        serde_json::to_string(&out)
+            .map_err(|e| Error::from_reason(format!("Erro serializar retorno: {}", e)))
+    }
 }

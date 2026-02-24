@@ -1,5 +1,4 @@
-// teste-node/creddef/test_creddef_01_ledger_smoke.js
-
+// WALLET_PASS="minha_senha_teste" RESET_WALLET=1 node teste-node/creddef/test_creddef_01_ledger_smoke.js
 const fs = require("fs");
 const path = require("path");
 const http = require("http");

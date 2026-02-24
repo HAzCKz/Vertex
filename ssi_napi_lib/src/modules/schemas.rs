@@ -285,14 +285,6 @@ impl IndyAgent {
                 })
                 .to_string();
 
-                // session
-                //     .insert("schema", &schema_id, schema_json_str.as_bytes(), None, None)
-                //     .await
-                //     .map_err(|e| napi::Error::from_reason(format!("Erro salvar schema: {}", e)))?;
-                // session
-                //     .commit()
-                //     .await
-                //     .map_err(|e| napi::Error::from_reason(format!("Erro commit: {}", e)))?;
 
                 let tags = vec![
                     EntryTag::Encrypted("on_ledger".to_string(), "true".to_string()),

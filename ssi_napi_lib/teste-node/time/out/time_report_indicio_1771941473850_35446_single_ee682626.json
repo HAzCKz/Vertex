@@ -1,0 +1,459 @@
+{
+  "run_id": "1771941473850_35446_single_ee682626",
+  "created_at": "2026-02-24T13:58:13.488Z",
+  "network": "INDICIO_TESTNET",
+  "genesis": {
+    "url": "https://raw.githubusercontent.com/Indicio-tech/indicio-network/refs/heads/main/genesis_files/pool_transactions_testnet_genesis",
+    "file": "./indicio_testnet.txn"
+  },
+  "env": {
+    "ITER": 1,
+    "WARMUP": 0,
+    "RUN_TAG": "single",
+    "MEASURE_RESOLVE": false,
+    "SUBMITTER_DID": "7DffLFWsgrwbt7T1Ni9cmu"
+  },
+  "notes": {
+    "submitter": "Sem TRUSTEE. Writes assinados pelo SUBMITTER_DID (endorser/issuer). Holder+Verifier registrados como DIDs comuns (role null).",
+    "envelope_methods": "envelopePackAuthcrypt/envelopeUnpackAuto medidos quando disponíveis",
+    "resolve_methods": "resolveDidOnLedger medido quando MEASURE_RESOLVE=1 e método existe"
+  },
+  "raw_ms_all": {
+    "walletCreate(issuer)": [
+      132.075099
+    ],
+    "walletCreate(holder)": [
+      126.038993
+    ],
+    "walletCreate(verifier)": [
+      127.641504
+    ],
+    "walletOpen(issuer)": [
+      102.98745
+    ],
+    "walletOpen(holder)": [
+      103.457326
+    ],
+    "walletOpen(verifier)": [
+      107.918549
+    ],
+    "connectNetwork(issuer)": [
+      0.387885
+    ],
+    "connectNetwork(holder)": [
+      0.138805
+    ],
+    "connectNetwork(verifier)": [
+      0.151276
+    ],
+    "importDidFromSeed(SUBMITTER)": [
+      12.758809
+    ],
+    "createOwnDid(holder)": [
+      12.797124
+    ],
+    "createOwnDid(verifier)": [
+      13.691846
+    ],
+    "registerDidOnLedger(holder)": [
+      4007.400875
+    ],
+    "registerDidOnLedger(verifier)": [
+      1714.878995
+    ],
+    "createAndRegisterSchema(CPF)": [
+      3921.35819
+    ],
+    "createAndRegisterCredDef(CPF)": [
+      5940.162527
+    ],
+    "fetchSchemaFromLedger(CPF)": [
+      1986.296385
+    ],
+    "fetchCredDefFromLedger(CPF)": [
+      1144.586286
+    ],
+    "createLinkSecret(default)": [
+      9.675895
+    ],
+    "createCredentialOffer(CPF)": [
+      7.491999
+    ],
+    "createCredentialRequest(CPF)": [
+      32.493882
+    ],
+    "createCredential(CPF)": [
+      25.031923
+    ],
+    "storeCredential(CPF)": [
+      18.504917
+    ],
+    "createPresentation(ZKP18)": [
+      41.170652
+    ],
+    "verifyPresentation(ZKP18)": [
+      39.805325
+    ],
+    "envelopePackAuthcrypt(offer)": [
+      1.009917
+    ],
+    "envelopeUnpackAuto(offer)": [
+      0.595453
+    ]
+  },
+  "raw_ms": {
+    "walletCreate(issuer)": [
+      132.075099
+    ],
+    "walletCreate(holder)": [
+      126.038993
+    ],
+    "walletCreate(verifier)": [
+      127.641504
+    ],
+    "walletOpen(issuer)": [
+      102.98745
+    ],
+    "walletOpen(holder)": [
+      103.457326
+    ],
+    "walletOpen(verifier)": [
+      107.918549
+    ],
+    "connectNetwork(issuer)": [
+      0.387885
+    ],
+    "connectNetwork(holder)": [
+      0.138805
+    ],
+    "connectNetwork(verifier)": [
+      0.151276
+    ],
+    "importDidFromSeed(SUBMITTER)": [
+      12.758809
+    ],
+    "createOwnDid(holder)": [
+      12.797124
+    ],
+    "createOwnDid(verifier)": [
+      13.691846
+    ],
+    "registerDidOnLedger(holder)": [
+      4007.400875
+    ],
+    "registerDidOnLedger(verifier)": [
+      1714.878995
+    ],
+    "createAndRegisterSchema(CPF)": [
+      3921.35819
+    ],
+    "createAndRegisterCredDef(CPF)": [
+      5940.162527
+    ],
+    "fetchSchemaFromLedger(CPF)": [
+      1986.296385
+    ],
+    "fetchCredDefFromLedger(CPF)": [
+      1144.586286
+    ],
+    "createLinkSecret(default)": [
+      9.675895
+    ],
+    "createCredentialOffer(CPF)": [
+      7.491999
+    ],
+    "createCredentialRequest(CPF)": [
+      32.493882
+    ],
+    "createCredential(CPF)": [
+      25.031923
+    ],
+    "storeCredential(CPF)": [
+      18.504917
+    ],
+    "createPresentation(ZKP18)": [
+      41.170652
+    ],
+    "verifyPresentation(ZKP18)": [
+      39.805325
+    ],
+    "envelopePackAuthcrypt(offer)": [
+      1.009917
+    ],
+    "envelopeUnpackAuto(offer)": [
+      0.595453
+    ]
+  },
+  "summary": {
+    "walletCreate(issuer)": {
+      "n": 1,
+      "avg_ms": 132.075099,
+      "stddev_ms": 0,
+      "min_ms": 132.075099,
+      "max_ms": 132.075099,
+      "p50_ms": 132.075099,
+      "p95_ms": 132.075099,
+      "p99_ms": 132.075099
+    },
+    "walletCreate(holder)": {
+      "n": 1,
+      "avg_ms": 126.038993,
+      "stddev_ms": 0,
+      "min_ms": 126.038993,
+      "max_ms": 126.038993,
+      "p50_ms": 126.038993,
+      "p95_ms": 126.038993,
+      "p99_ms": 126.038993
+    },
+    "walletCreate(verifier)": {
+      "n": 1,
+      "avg_ms": 127.641504,
+      "stddev_ms": 0,
+      "min_ms": 127.641504,
+      "max_ms": 127.641504,
+      "p50_ms": 127.641504,
+      "p95_ms": 127.641504,
+      "p99_ms": 127.641504
+    },
+    "walletOpen(issuer)": {
+      "n": 1,
+      "avg_ms": 102.98745,
+      "stddev_ms": 0,
+      "min_ms": 102.98745,
+      "max_ms": 102.98745,
+      "p50_ms": 102.98745,
+      "p95_ms": 102.98745,
+      "p99_ms": 102.98745
+    },
+    "walletOpen(holder)": {
+      "n": 1,
+      "avg_ms": 103.457326,
+      "stddev_ms": 0,
+      "min_ms": 103.457326,
+      "max_ms": 103.457326,
+      "p50_ms": 103.457326,
+      "p95_ms": 103.457326,
+      "p99_ms": 103.457326
+    },
+    "walletOpen(verifier)": {
+      "n": 1,
+      "avg_ms": 107.918549,
+      "stddev_ms": 0,
+      "min_ms": 107.918549,
+      "max_ms": 107.918549,
+      "p50_ms": 107.918549,
+      "p95_ms": 107.918549,
+      "p99_ms": 107.918549
+    },
+    "connectNetwork(issuer)": {
+      "n": 1,
+      "avg_ms": 0.387885,
+      "stddev_ms": 0,
+      "min_ms": 0.387885,
+      "max_ms": 0.387885,
+      "p50_ms": 0.387885,
+      "p95_ms": 0.387885,
+      "p99_ms": 0.387885
+    },
+    "connectNetwork(holder)": {
+      "n": 1,
+      "avg_ms": 0.138805,
+      "stddev_ms": 0,
+      "min_ms": 0.138805,
+      "max_ms": 0.138805,
+      "p50_ms": 0.138805,
+      "p95_ms": 0.138805,
+      "p99_ms": 0.138805
+    },
+    "connectNetwork(verifier)": {
+      "n": 1,
+      "avg_ms": 0.151276,
+      "stddev_ms": 0,
+      "min_ms": 0.151276,
+      "max_ms": 0.151276,
+      "p50_ms": 0.151276,
+      "p95_ms": 0.151276,
+      "p99_ms": 0.151276
+    },
+    "importDidFromSeed(SUBMITTER)": {
+      "n": 1,
+      "avg_ms": 12.758809,
+      "stddev_ms": 0,
+      "min_ms": 12.758809,
+      "max_ms": 12.758809,
+      "p50_ms": 12.758809,
+      "p95_ms": 12.758809,
+      "p99_ms": 12.758809
+    },
+    "createOwnDid(holder)": {
+      "n": 1,
+      "avg_ms": 12.797124,
+      "stddev_ms": 0,
+      "min_ms": 12.797124,
+      "max_ms": 12.797124,
+      "p50_ms": 12.797124,
+      "p95_ms": 12.797124,
+      "p99_ms": 12.797124
+    },
+    "createOwnDid(verifier)": {
+      "n": 1,
+      "avg_ms": 13.691846,
+      "stddev_ms": 0,
+      "min_ms": 13.691846,
+      "max_ms": 13.691846,
+      "p50_ms": 13.691846,
+      "p95_ms": 13.691846,
+      "p99_ms": 13.691846
+    },
+    "registerDidOnLedger(holder)": {
+      "n": 1,
+      "avg_ms": 4007.400875,
+      "stddev_ms": 0,
+      "min_ms": 4007.400875,
+      "max_ms": 4007.400875,
+      "p50_ms": 4007.400875,
+      "p95_ms": 4007.400875,
+      "p99_ms": 4007.400875
+    },
+    "registerDidOnLedger(verifier)": {
+      "n": 1,
+      "avg_ms": 1714.878995,
+      "stddev_ms": 0,
+      "min_ms": 1714.878995,
+      "max_ms": 1714.878995,
+      "p50_ms": 1714.878995,
+      "p95_ms": 1714.878995,
+      "p99_ms": 1714.878995
+    },
+    "createAndRegisterSchema(CPF)": {
+      "n": 1,
+      "avg_ms": 3921.35819,
+      "stddev_ms": 0,
+      "min_ms": 3921.35819,
+      "max_ms": 3921.35819,
+      "p50_ms": 3921.35819,
+      "p95_ms": 3921.35819,
+      "p99_ms": 3921.35819
+    },
+    "createAndRegisterCredDef(CPF)": {
+      "n": 1,
+      "avg_ms": 5940.162527,
+      "stddev_ms": 0,
+      "min_ms": 5940.162527,
+      "max_ms": 5940.162527,
+      "p50_ms": 5940.162527,
+      "p95_ms": 5940.162527,
+      "p99_ms": 5940.162527
+    },
+    "fetchSchemaFromLedger(CPF)": {
+      "n": 1,
+      "avg_ms": 1986.296385,
+      "stddev_ms": 0,
+      "min_ms": 1986.296385,
+      "max_ms": 1986.296385,
+      "p50_ms": 1986.296385,
+      "p95_ms": 1986.296385,
+      "p99_ms": 1986.296385
+    },
+    "fetchCredDefFromLedger(CPF)": {
+      "n": 1,
+      "avg_ms": 1144.586286,
+      "stddev_ms": 0,
+      "min_ms": 1144.586286,
+      "max_ms": 1144.586286,
+      "p50_ms": 1144.586286,
+      "p95_ms": 1144.586286,
+      "p99_ms": 1144.586286
+    },
+    "createLinkSecret(default)": {
+      "n": 1,
+      "avg_ms": 9.675895,
+      "stddev_ms": 0,
+      "min_ms": 9.675895,
+      "max_ms": 9.675895,
+      "p50_ms": 9.675895,
+      "p95_ms": 9.675895,
+      "p99_ms": 9.675895
+    },
+    "createCredentialOffer(CPF)": {
+      "n": 1,
+      "avg_ms": 7.491999,
+      "stddev_ms": 0,
+      "min_ms": 7.491999,
+      "max_ms": 7.491999,
+      "p50_ms": 7.491999,
+      "p95_ms": 7.491999,
+      "p99_ms": 7.491999
+    },
+    "createCredentialRequest(CPF)": {
+      "n": 1,
+      "avg_ms": 32.493882,
+      "stddev_ms": 0,
+      "min_ms": 32.493882,
+      "max_ms": 32.493882,
+      "p50_ms": 32.493882,
+      "p95_ms": 32.493882,
+      "p99_ms": 32.493882
+    },
+    "createCredential(CPF)": {
+      "n": 1,
+      "avg_ms": 25.031923,
+      "stddev_ms": 0,
+      "min_ms": 25.031923,
+      "max_ms": 25.031923,
+      "p50_ms": 25.031923,
+      "p95_ms": 25.031923,
+      "p99_ms": 25.031923
+    },
+    "storeCredential(CPF)": {
+      "n": 1,
+      "avg_ms": 18.504917,
+      "stddev_ms": 0,
+      "min_ms": 18.504917,
+      "max_ms": 18.504917,
+      "p50_ms": 18.504917,
+      "p95_ms": 18.504917,
+      "p99_ms": 18.504917
+    },
+    "createPresentation(ZKP18)": {
+      "n": 1,
+      "avg_ms": 41.170652,
+      "stddev_ms": 0,
+      "min_ms": 41.170652,
+      "max_ms": 41.170652,
+      "p50_ms": 41.170652,
+      "p95_ms": 41.170652,
+      "p99_ms": 41.170652
+    },
+    "verifyPresentation(ZKP18)": {
+      "n": 1,
+      "avg_ms": 39.805325,
+      "stddev_ms": 0,
+      "min_ms": 39.805325,
+      "max_ms": 39.805325,
+      "p50_ms": 39.805325,
+      "p95_ms": 39.805325,
+      "p99_ms": 39.805325
+    },
+    "envelopePackAuthcrypt(offer)": {
+      "n": 1,
+      "avg_ms": 1.009917,
+      "stddev_ms": 0,
+      "min_ms": 1.009917,
+      "max_ms": 1.009917,
+      "p50_ms": 1.009917,
+      "p95_ms": 1.009917,
+      "p99_ms": 1.009917
+    },
+    "envelopeUnpackAuto(offer)": {
+      "n": 1,
+      "avg_ms": 0.595453,
+      "stddev_ms": 0,
+      "min_ms": 0.595453,
+      "max_ms": 0.595453,
+      "p50_ms": 0.595453,
+      "p95_ms": 0.595453,
+      "p99_ms": 0.595453
+    }
+  }
+}

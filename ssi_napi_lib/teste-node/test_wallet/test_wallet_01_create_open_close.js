@@ -1,5 +1,3 @@
-// node teste-node/test_wallet/test_wallet_01_create_open_close.js
-
 // WALLET_PASS="minha_senha_teste" RESET_WALLET=1 node teste-node/test_wallet/test_wallet_01_create_open_close.js
 
 "use strict";

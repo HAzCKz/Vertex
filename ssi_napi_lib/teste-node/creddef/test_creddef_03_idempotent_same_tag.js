@@ -1,4 +1,4 @@
-// teste-node/creddef/test_creddef_03_idempotent_same_tag.js
+// WALLET_PASS="minha_senha_teste" RESET_WALLET=1 node teste-node/creddef/test_creddef_03_idempotent_same_tag.js
 
 const fs = require("fs");
 const path = require("path");
