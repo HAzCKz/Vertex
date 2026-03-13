@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SSI Electron</title>
+  <link rel="stylesheet" href="./css/app.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">SSI Electron - v0</div>
+      <button class="nav" data-page="wallet">Wallet</button>
+      <button class="nav" data-page="ledger">Ledger</button>
+      <button class="nav" data-page="did">DIDs</button>
+      <button class="nav" data-page="attrib">Escrever ATTRIBs</button>
+      <button class="nav" data-page="schemas">Schemas</button>
+      <button class="nav" data-page="creddefs">CredDefs</button>
+      <button class="nav" data-page="credential-offer">Oferta de Credencial</button>
+      <button class="nav" data-page="credential-accept">Aceite de Oferta de Credencial</button>
+      <button class="nav" data-page="credential-create">Criar Credencial</button>
+      <button class="nav" data-page="credential-receive">Receber Credencial</button>
+      <button class="nav" data-page="credential-list">Listar Credenciais</button>
+      <button class="nav" data-page="presentation-create">Criar Apresentações</button>
+      <button class="nav" data-page="presentation-verify">Verificar Apresentações</button>
+      <button class="nav" data-page="presentation-list">Listar Apresentações</button>
+      <button class="nav" data-page="logs">Logs</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div id="status">Pronto.</div>
+      </header>
+
+      <section id="page-wallet" class="page"></section>
+      <section id="page-ledger" class="page hidden"></section>
+      <section id="page-did" class="page hidden"></section>
+      <section id="page-attrib" class="page hidden"></section>
+      <section id="page-schemas" class="page hidden"></section>
+      <section id="page-creddefs" class="page hidden"></section>
+      <section id="page-credential-offer" class="page hidden"></section>
+      <section id="page-credential-accept" class="page hidden"></section>
+      <section id="page-credential-create" class="page hidden"></section>
+      <section id="page-credential-receive" class="page hidden"></section>
+      <section id="page-credential-list" class="page hidden"></section>
+      <section id="page-presentation-create" class="page hidden"></section>
+      <section id="page-presentation-verify" class="page hidden"></section>
+      <section id="page-presentation-list" class="page hidden"></section>
+      <section id="page-logs" class="page hidden"></section>
+    </main>
+  </div>
+
+  <script src="./js/api.js"></script>
+  <script src="./js/pages/wallet.js"></script>
+  <script src="./js/pages/ledger.js"></script>
+  <script src="./js/pages/logs.js"></script>
+  <script src="./js/router.js"></script>
+  <script src="./js/pages/did.js"></script>
+  <script src="./js/pages/attrib.js"></script>
+  <script src="./js/pages/schemas.js"></script>
+  <script src="./js/pages/creddefs.js"></script>
+  <script src="./js/pages/credential-offer.js"></script>
+  <script src="./js/pages/credential-accept.js"></script>
+  <script src="./js/pages/credential-create.js"></script>
+  <script src="./js/pages/credential-receive.js"></script>
+  <script src="./js/pages/credential-list.js"></script>
+  <script src="./js/pages/presentation-create.js"></script>
+  <script src="./js/pages/presentation-verify.js"></script>
+  <script src="./js/pages/presentation-list.js"></script>
+  <script src="./state.js"></script>
+</body>
+</html>
