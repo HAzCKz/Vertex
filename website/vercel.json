@@ -1,7 +1,7 @@
 {
     "cleanUrls": true,
     "routes": [
-        { "src": "/members", "dest": "/equipe.html" },
-        { "src": "/resources", "dest": "/recursos.html" }
+        { "src": "/members", "dest": "/equipe" },
+        { "src": "/resources", "dest": "/recursos" }
   ]
 }
