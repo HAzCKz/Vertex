@@ -274,12 +274,12 @@
     <footer class="main-footer">
     <div class="footer-container">
         <div class="partners-triad">
-        
-            <img src="images/ufabc-logo.png" alt="UFABC" class="ufabc-logo">
-            <img src="images/unifesp-logo.png" alt="Unifesp" class="unifesp-logo">
-    
+
             <img src="images/ITA_logo.png" alt="ITA" class="ita-logo">
+            <img src="images/ufabc-logo.png" alt="UFABC" class="ufabc-logo">
+
             <img src="images/unicamp-logo.png" alt="Unicamp" class="unicamp-logo">
+            <img src="images/unifesp-logo.png" alt="Unifesp" class="unifesp-logo">
 
         </div>
 
@@ -305,7 +305,6 @@
                 <button type="submit" class="footer-submit">Send</button>
             </form>
         </div>
-
         
 </footer>
 
@@ -321,7 +320,7 @@
 
         document.querySelectorAll('.filter-btn').forEach(button => {
             button.addEventListener('click', () => {
-        // Remove 'active' de todos os botões e adiciona no clicado
+        // Remove "ativado" de todos os botões e adiciona no clicado
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
 
@@ -346,21 +345,16 @@
                 const domain = this.getAttribute('data-domain');
                 
                 // Monta o e-mail e abre o cliente do usuário
-
-                // Em vez de: window.location.href = `mailto:${user}@${domain}`;
-                // Você usaria o link direto de composição do Gmail:
                 const emailFinal = `${user}@${domain}`;
                 const subject = "Contato via Projeto Vertex";
 
                 window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${emailFinal}&su=${subject}`, '_blank');
-                //window.location.href = `mailto:${user}@${domain}?subject=Contato via Projeto Vertex`;
             });
         });
 
         document.getElementById('footer-contact-form')?.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Pega o e-mail ofuscado no próprio form (contato@projetovertex.com.br)
         const u = this.getAttribute('data-u');
         const d = this.getAttribute('data-d');
         const emailFinal = `${u}@${d}`;
@@ -369,10 +363,8 @@
         const mensagem = document.getElementById('footer-body').value;
         const assunto = "Contato via Site - Projeto Vertex";
         
-        // Formata o corpo do e-mail
         const corpoEmail = `Nome: ${nome}\n\nMensagem: ${mensagem}`;
 
-        // Abre o Gmail com os campos preenchidos
         const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${emailFinal}&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpoEmail)}`;
         
         window.open(gmailUrl, '_blank');
