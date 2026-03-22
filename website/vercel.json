@@ -1,6 +1,10 @@
 {
-    "cleanUrls": true,
-    "redirects": [
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/resources", "destination": "/recursos.html" },
+    { "source": "/members", "destination": "/equipe.html" }
+  ],
+  "redirects": [
     { "source": "/recursos", "destination": "/resources", "permanent": true }
   ]
 }
