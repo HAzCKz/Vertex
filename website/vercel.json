@@ -1,7 +1,7 @@
 {
     "cleanUrls": true,
-    "routes": [
-        { "src": "/members", "dest": "/equipe" },
-        { "src": "/resources", "dest": "/recursos" }
+    "rewrites": [
+        { "source": "/members", "destination": "/equipe" },
+        { "source": "/resources", "destination": "/recursos" }
   ]
 }
