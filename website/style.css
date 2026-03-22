@@ -149,7 +149,7 @@ header.scrolled {
 }
 
 .about-container {
-    max-width: 1200px;
+    max-width: 1450px;
     margin: 0 auto;
     display: flex;
     align-items: center; 
@@ -220,7 +220,7 @@ header.scrolled {
 }
 
 .section-nav {
-    max-width: 1200px;
+    max-width: 1370px;
     margin: 0 auto 40px auto;
     display: flex;
     justify-content: space-between;
@@ -234,7 +234,7 @@ header.scrolled {
 }
 
 .featured-articles-grid {
-    max-width: 1200px;
+    max-width: 1340px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -332,7 +332,7 @@ header.scrolled {
 .hide { display: none !important; }
 
 .team-grid.compact {
-    max-width: 1200px;
+    max-width: 1500px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -418,7 +418,7 @@ header.scrolled {
 }
 
 .main-recursos-container {
-    max-width: 1000px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 60px 20px;
 }
