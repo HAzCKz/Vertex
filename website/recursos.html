@@ -121,16 +121,14 @@
 <footer class="main-footer">
     <div class="footer-container">
         <div class="partners-triad">
-        
-            <img src="images/ufabc-logo.png" alt="UFABC" class="ufabc-logo">
-            <img src="images/unifesp-logo.png" alt="Unifesp" class="unifesp-logo">
-    
+
             <img src="images/ITA_logo.png" alt="ITA" class="ita-logo">
+            <img src="images/ufabc-logo.png" alt="UFABC" class="ufabc-logo">
+    
             <img src="images/unicamp-logo.png" alt="Unicamp" class="unicamp-logo">
+            <img src="images/unifesp-logo.png" alt="Unifesp" class="unifesp-logo">
 
         </div>
-
-        
 
         <div class="footer-column">
             <h3>Navigation</h3>
@@ -157,7 +155,6 @@
         document.getElementById('footer-contact-form')?.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Pega o e-mail ofuscado no próprio form (contato@projetovertex.com.br)
             const u = this.getAttribute('data-u');
             const d = this.getAttribute('data-d');
             const emailFinal = `${u}@${d}`;
@@ -166,10 +163,8 @@
             const mensagem = document.getElementById('footer-body').value;
             const assunto = "Contato via Site - Projeto Vertex";
             
-            // Formata o corpo do e-mail
             const corpoEmail = `Nome: ${nome}\n\nMensagem: ${mensagem}`;
 
-            // Abre o Gmail com os campos preenchidos
             const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${emailFinal}&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpoEmail)}`;
             
             window.open(gmailUrl, '_blank');
