@@ -51,16 +51,19 @@
                 <span class="badge">Innovation and Research</span>
                 <h2>About Vertex</h2>
                 <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam ut ultricies arcu. Pellentesque a posuere leo. Curabitur laoreet elit ex, ut semper velit efficitur quis. Aenean tempor, justo vitae eleifend consequat, magna ante convallis mauris, sed suscipit nibh erat id risus. Cras non sem vestibulum, euismod tellus at, vulputate dui. Praesent condimentum suscipit imperdiet. Aliquam erat volutpat. Quisque porttitor sed magna at congue. Nam tincidunt euismod commodo. Cras sem magna, rhoncus vel diam tincidunt, ultrices viverra lacus. Proin tincidunt vulputate tincidunt. Ut gravida rutrum erat, id efficitur mi vestibulum sit amet. Aenean quis turpis at felis tristique dignissim.
-
-
+                    This international collaborative research project, titled Vertiport Ecosystem for future urban air mobility (VERTEX), we focus on the study of AI agents for eVTOL and vertiport operations because of their central role in ensuring the performance, safety, and resilience of the broader UAM ecosystem. eVTOL operations involve several critical challenges, including autonomous or human-supervised decision-making, route adaptation under uncertainty, battery and charging constraints, fault detection and recovery, and safe operation in dense and highly variable urban environments.
                 </p>
+                    
                 <p>
-                    Vivamus at imperdiet sapien. Pellentesque sodales ipsum quis gravida placerat. Donec ut malesuada velit, ac accumsan nisi. Curabitur interdum mi massa, a euismod ante scelerisque sit amet. Morbi sit amet elit et neque scelerisque vulputate. Curabitur porta non tellus in aliquet
+                    Vertiports, in turn, must satisfy a wide range of demanding operational requirements, including the capacity to accommodate multiple eVTOLs, compliance with noise and environmental regulations, adaptation to changing weather conditions, and the management of limited energy and charging resources. In addition, vertiports operate under a complex regulatory landscape shaped by federal, state, municipal, and environmental authorities. They may also experience high traffic demand during peak periods and remain exposed to operational failures, cascading disruptions, and security threats, including cybersecurity risks. 
+                </p>
+                    
+                <p>
+                    Failures or inefficiencies in vertiport operations may result in accidents, service interruptions, and substantial economic and societal losses. These challenges highlight the need for intelligent, trustworthy, and robust AI-based solutions capable of improving the reliability, adaptability, and safety assurance of next-generation UAM infrastructure.
                 </p>
             </div>
             <div class="about-image">
-                <img src="/images/evtol.png" alt="Ilustração Técnica Projeto Vertex">
+                <img src="/images/evtol.png" alt="evtol">
             </div>
         </div>
     </section>
@@ -68,7 +71,7 @@
     <section class="latest-articles-home">
         <div class="container">
             <div class="section-nav">
-                <h2>Recent Publications</h2>
+                <h2>Relevant Articles</h2>
                 <a href="recursos.html" class="link-explorar">View full repository →</a>
             </div>
 
@@ -107,7 +110,7 @@
 <footer class="main-footer">
     <div class="footer-container">
         <div class="partners-triad">
-
+        
             <img src="images/efrei-logo.png" alt="EFREI" class="efrei-logo">
             <img src="images/ITA_logo.png" alt="ITA" class="ita-logo">
 
@@ -163,7 +166,6 @@
         const mensagem = document.getElementById('footer-body').value;
         const assunto = "Contato via Site - Projeto Vertex";
         
-        // Formata o corpo do e-mail
         const corpoEmail = `Nome: ${nome}\n\nMensagem: ${mensagem}`;
 
         const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${emailFinal}&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpoEmail)}`;
