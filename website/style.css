@@ -565,21 +565,25 @@ header.scrolled {
 
 .partners-triad {
     display: grid;
-    grid-template-columns: repeat(2, auto); 
+    grid-template-columns: repeat(3, auto); 
     gap: 25px 40px;
     justify-content: center; 
     align-items: center; 
 }
 
-.ufabc-logo, .unifesp-logo, .unicamp-logo, .ita-logo {
+.ufabc-logo, .unifesp-logo, .unicamp-logo, .ita-logo, .telecom-paris, .efrei-logo{
     width: auto;
     justify-self: center;
 }
 
+.telecom-paris { max-height: 70px; filter: brightness(95%); }
 .ufabc-logo { max-height: 60px; filter: brightness(125%); }
 .unifesp-logo { max-height: 50px; filter: brightness(125%); }
 .unicamp-logo { max-height: 60px; filter: brightness(95%); }
 .ita-logo { max-height: 50px; filter: brightness(95%); }
+.efrei-logo { max-height: 70px; filter: brightness(95%); }
+
+
 
 .footer-column h3, .footer-contact h3 {
     color: var(--azul-vertex);
