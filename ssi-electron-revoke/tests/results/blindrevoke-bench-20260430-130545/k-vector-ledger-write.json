@@ -1,0 +1,38 @@
+{
+  "benchmark": "k-vector-ledger-write",
+  "generatedAt": "2026-04-30T13:09:37.462Z",
+  "iterations": 1,
+  "rows": [
+    {
+      "requestedChunkSizeBytes": null,
+      "requestedChunkSizeLabel": "default",
+      "experimentCount": 1,
+      "writeElapsedMs": 39126.128,
+      "setupCreateElapsedMs": 1.07,
+      "estimatedAttribWrites": 13,
+      "chunkCount": 11,
+      "effectiveChunkSizeBytes": 3045,
+      "totalBytes": 32768,
+      "valueCount": 1024
+    }
+  ],
+  "runs": [
+    {
+      "requestedChunkSizeBytes": null,
+      "requestedChunkSizeLabel": "default",
+      "iteration": 1,
+      "issuerDid": "3Rt9mPJiw8jrSZ197txXq3",
+      "issuerRole": "ENDORSER",
+      "setupCreateElapsedMs": 1.07,
+      "writeElapsedMs": 39126.128,
+      "kVectorId": "k-vector-1777554538",
+      "vectorHash": "XfctgnBz0C6dRXzYxhI0vGtTHrfY1EepcNcXZeLnvng=",
+      "chunkCount": 11,
+      "effectiveChunkSizeBytes": 3045,
+      "totalBytes": 32768,
+      "valueCount": 1024,
+      "estimatedAttribWrites": 13,
+      "writeVerifiedOnLedger": true
+    }
+  ]
+}

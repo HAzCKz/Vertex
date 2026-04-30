@@ -1,0 +1,6 @@
+janelas,experimentos,janelas_validas,janelas_confirmacao,tempo_emissao_ms,envelope_holder_bytes,holder_bundle_bytes,manifesto_bytes,chunk_count
+100,3,100,10,65.291,78827,33600,614,11
+365,3,365,10,157.51,198763,111109,614,11
+1000,3,1000,10,379.426,486003,296660,614,11
+5000,3,5000,10,1728.239,2295721,1465936,614,11
+10000,3,10000,10,3407.178,4557647,2927371,614,11

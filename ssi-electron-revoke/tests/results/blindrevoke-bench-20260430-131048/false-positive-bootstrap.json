@@ -1,0 +1,10 @@
+{
+  "benchmark": "false-positive",
+  "generatedAt": "2026-04-30T13:13:19.476Z",
+  "bootstrap": {
+    "manifestUrl": "http://127.0.0.1:8081/manifest",
+    "resetUrl": "http://127.0.0.1:8081/test/reset",
+    "manifestHash": "1Lfa82wqaWmMFWoPhTWuz0gEjlwzoriVJ6TADoNMblk=",
+    "manifestBytes": 608
+  }
+}

@@ -1,0 +1,22 @@
+| Janelas | Cenário | Experimentos | Warmups | Janela revogação | Mediana (ms) | P95 (ms) | Janelas consultadas | Modo dominante |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 100 | not_revoked | 10 | 1 | - | 88.425 | 107.938 | 18 | binary_window_search |
+| 100 | revoked_early | 10 | 1 | 0 | 57.79 | 70.013 | 12 | binary_window_search |
+| 100 | revoked_middle | 10 | 1 | 50 | 47.627 | 59.632 | 11 | binary_window_search |
+| 100 | revoked_late | 10 | 1 | 99 | 23.245 | 28.816 | 8 | binary_window_search |
+| 365 | not_revoked | 10 | 1 | - | 104.336 | 133.238 | 20 | binary_window_search |
+| 365 | revoked_early | 10 | 1 | 0 | 79.891 | 118.641 | 16 | binary_window_search |
+| 365 | revoked_middle | 10 | 1 | 182 | 25.088 | 47.371 | 10 | binary_window_search |
+| 365 | revoked_late | 10 | 1 | 364 | 35.206 | 41.762 | 10 | binary_window_search |
+| 1000 | not_revoked | 10 | 1 | - | 172.313 | 242.72 | 21 | binary_window_search |
+| 1000 | revoked_early | 10 | 1 | 0 | 135.486 | 147.561 | 18 | binary_window_search |
+| 1000 | revoked_middle | 10 | 1 | 500 | 136.406 | 191.953 | 17 | binary_window_search |
+| 1000 | revoked_late | 10 | 1 | 999 | 68.97 | 77.176 | 11 | binary_window_search |
+| 5000 | not_revoked | 10 | 1 | - | 391.244 | 420.325 | 24 | binary_window_search |
+| 5000 | revoked_early | 10 | 1 | 0 | 396.256 | 407.692 | 24 | binary_window_search |
+| 5000 | revoked_middle | 10 | 1 | 2500 | 382.327 | 399.46 | 23 | binary_window_search |
+| 5000 | revoked_late | 10 | 1 | 4999 | 192.536 | 200.105 | 14 | binary_window_search |
+| 10000 | not_revoked | 10 | 1 | - | 660.696 | 674.368 | 25 | binary_window_search |
+| 10000 | revoked_early | 10 | 1 | 0 | 689.916 | 717.889 | 26 | binary_window_search |
+| 10000 | revoked_middle | 10 | 1 | 5000 | 672.876 | 683.467 | 25 | binary_window_search |
+| 10000 | revoked_late | 10 | 1 | 9999 | 360.689 | 377.601 | 15 | binary_window_search |

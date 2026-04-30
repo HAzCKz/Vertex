@@ -1,0 +1,16 @@
+windowCountRequested,scenario,experimentCount,revokeFromWindow,elapsedMs,expectedKeysToWrite,actualKeysWritten,bloomInserted
+100,revoked_early,3,0,79.225,110,110,110
+100,revoked_middle,3,50,71.502,60,60,60
+100,revoked_late,3,99,66.63,11,11,11
+365,revoked_early,3,0,93.076,375,375,375
+365,revoked_middle,3,182,81.028,193,193,193
+365,revoked_late,3,364,67.987,11,11,11
+1000,revoked_early,3,0,147.649,1010,1010,1010
+1000,revoked_middle,3,500,109.849,510,510,510
+1000,revoked_late,3,999,69.846,11,11,11
+5000,revoked_early,3,0,431.664,5010,5010,5010
+5000,revoked_middle,3,2500,260.586,2510,2510,2510
+5000,revoked_late,3,4999,74.529,11,11,11
+10000,revoked_early,3,0,785.984,10010,10010,10010
+10000,revoked_middle,3,5000,423.801,5010,5010,5010
+10000,revoked_late,3,9999,80.99,11,11,11

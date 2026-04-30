@@ -1,0 +1,24 @@
+{
+  "name": "ssi-electron",
+  "version": "0.1.0",
+  "main": "src/main/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "bench:blindrevoke": "node tests/blindrevoke-bench.js",
+    "bench:campaign": "bash tests/run-blindrevoke-bench.sh campaign",
+    "bench:all": "bash tests/run-blindrevoke-bench.sh campaign",
+    "bench:issue": "bash tests/run-blindrevoke-bench.sh issue-metrics",
+    "bench:verify": "bash tests/run-blindrevoke-bench.sh verify-latency",
+    "bench:false-positive": "bash tests/run-blindrevoke-bench.sh false-positive",
+    "bench:proof-size": "bash tests/run-blindrevoke-bench.sh proof-payload-size",
+    "bench:throughput": "bash tests/run-blindrevoke-bench.sh bloom-throughput",
+    "bench:k-ledger": "bash tests/run-blindrevoke-bench.sh k-vector-ledger-write"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^26.8.1"
+  }
+}

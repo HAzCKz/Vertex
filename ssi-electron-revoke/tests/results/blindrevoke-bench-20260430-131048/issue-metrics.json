@@ -1,0 +1,83 @@
+{
+  "benchmark": "issue-metrics",
+  "generatedAt": "2026-04-30T13:11:56.725Z",
+  "configPath": "/home/yugi/programacao/ssi-electron-revoke/tests/blindrevoke.config.json",
+  "iterations": 3,
+  "rows": [
+    {
+      "windowCountRequested": 100,
+      "experimentCount": 3,
+      "baseWindowCount": 100,
+      "totalWindowCount": 110,
+      "confirmationWindowCount": 10,
+      "issueElapsedMs": 74.439,
+      "holderEnvelopeBytes": 78834,
+      "revocablePackageBytes": 58478,
+      "credentialJsonBytes": 3625,
+      "holderBundleBytes": 33604,
+      "manifestBytes": 614,
+      "chunkCount": 11,
+      "kVectorId": "k-vector-1777554649"
+    },
+    {
+      "windowCountRequested": 365,
+      "experimentCount": 3,
+      "baseWindowCount": 365,
+      "totalWindowCount": 375,
+      "confirmationWindowCount": 10,
+      "issueElapsedMs": 155.494,
+      "holderEnvelopeBytes": 198759,
+      "revocablePackageBytes": 148419,
+      "credentialJsonBytes": 3625,
+      "holderBundleBytes": 111077,
+      "manifestBytes": 614,
+      "chunkCount": 11,
+      "kVectorId": "k-vector-1777554649"
+    },
+    {
+      "windowCountRequested": 1000,
+      "experimentCount": 3,
+      "baseWindowCount": 1000,
+      "totalWindowCount": 1010,
+      "confirmationWindowCount": 10,
+      "issueElapsedMs": 372.665,
+      "holderEnvelopeBytes": 485975,
+      "revocablePackageBytes": 363833,
+      "credentialJsonBytes": 3623,
+      "holderBundleBytes": 296644,
+      "manifestBytes": 614,
+      "chunkCount": 11,
+      "kVectorId": "k-vector-1777554649"
+    },
+    {
+      "windowCountRequested": 5000,
+      "experimentCount": 3,
+      "baseWindowCount": 5000,
+      "totalWindowCount": 5010,
+      "confirmationWindowCount": 10,
+      "issueElapsedMs": 1719.91,
+      "holderEnvelopeBytes": 2295650,
+      "revocablePackageBytes": 1721090,
+      "credentialJsonBytes": 3625,
+      "holderBundleBytes": 1465887,
+      "manifestBytes": 614,
+      "chunkCount": 11,
+      "kVectorId": "k-vector-1777554649"
+    },
+    {
+      "windowCountRequested": 10000,
+      "experimentCount": 3,
+      "baseWindowCount": 10000,
+      "totalWindowCount": 10010,
+      "confirmationWindowCount": 10,
+      "issueElapsedMs": 3413.117,
+      "holderEnvelopeBytes": 4557743,
+      "revocablePackageBytes": 3417659,
+      "credentialJsonBytes": 3625,
+      "holderBundleBytes": 2927443,
+      "manifestBytes": 614,
+      "chunkCount": 11,
+      "kVectorId": "k-vector-1777554649"
+    }
+  ]
+}

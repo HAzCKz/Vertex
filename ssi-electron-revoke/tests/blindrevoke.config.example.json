@@ -1,0 +1,117 @@
+{
+  "genesisPath": "./genesis.txn",
+  "walletPath": "/tmp/blindrevoke-bench-wallet.db",
+  "walletPass": "123456",
+  "outputRoot": "tests/results",
+  "identities": {
+    "submitter": {
+      "seed": "000000000000000000000000Trustee1",
+      "did": "V4SGRU86Z58d6TV7PBUe6f"
+    },
+    "issuer": {
+      "role": "ENDORSER",
+      "registerOnLedger": true
+    }
+  },
+  "trusteeSeed": "000000000000000000000000Trustee1",
+  "trusteeDid": "V4SGRU86Z58d6TV7PBUe6f",
+  "manifestUrl": "http://127.0.0.1:8080/manifest",
+  "manifestVersion": "1",
+  "bloomAdminToken": "troque-este-token",
+  "bloomBootstrap": {
+    "resetBeforeRun": true,
+    "resetPath": "/test/reset"
+  },
+  "revocation": {
+    "anchorManifestAfterWrite": false
+  },
+  "linkSecretId": "blindrevoke-bench-link-secret",
+  "schema": {
+    "namePrefix": "BlindRevokeBench",
+    "version": "1.0",
+    "attributes": [
+      "nome",
+      "doc",
+      "perfil"
+    ]
+  },
+  "credentialValues": {
+    "nome": "Holder Bench",
+    "doc": "12345678900",
+    "perfil": "avaliacao"
+  },
+  "time": {
+    "unitOfTime": "day",
+    "timeWindow": 1
+  },
+  "extraWindowsForFp": 10,
+  "binarySearchThreshold": 50,
+  "verifyWindowCounts": [
+    100,
+    365,
+    1000,
+    5000,
+    10000
+  ],
+  "issueWindowCounts": [
+    100,
+    365,
+    1000,
+    5000,
+    10000
+  ],
+  "verifyIterations": 5,
+  "verifyWarmups": 1,
+  "issueIterations": 1,
+  "proofIterations": 1,
+  "kVectorLedger": {
+    "iterations": 1,
+    "chunkSizeBytesList": [
+      null
+    ]
+  },
+  "issuerRevocationIterations": 1,
+  "proofWindowCounts": [
+    1,
+    10,
+    100,
+    365,
+    1000,
+    5000,
+    10000,
+    25000
+  ],
+  "issuerRevocationWindowCounts": [
+    100,
+    365,
+    1000,
+    5000,
+    10000
+  ],
+  "throughput": {
+    "sampleCredentialCount": 20,
+    "windowCount": 100,
+    "revokeFromWindow": 0
+  },
+  "falsePositive": {
+    "windowCount": 365,
+    "fillerCredentialCount": 8,
+    "trialCredentialCount": 20,
+    "skipIfServiceUnavailable": true
+  },
+  "filterProfiles": {
+    "default": {
+      "label": "m16777216-cap345238",
+      "manifestUrl": "http://127.0.0.1:8080/manifest",
+      "filterBits": 16777216,
+      "capacity95": 345238
+    },
+    "falsePositive": {
+      "label": "m32768-k32-for-fp-simulation",
+      "manifestUrl": "http://127.0.0.1:8081/manifest",
+      "filterBits": 32768,
+      "kHashes": 32,
+      "capacity95": 674
+    }
+  }
+}

@@ -1,0 +1,2 @@
+requestedChunkSizeBytes,requestedChunkSizeLabel,experimentCount,writeElapsedMs,setupCreateElapsedMs,estimatedAttribWrites,chunkCount,effectiveChunkSizeBytes,totalBytes,valueCount
+,default,1,39126.128,1.07,13,11,3045,32768,1024
