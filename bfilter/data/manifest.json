@@ -1,0 +1,27 @@
+{
+  "service": "bfilter",
+  "version": 1,
+  "updated_at": 1777559852,
+  "active_filter_id": "filter-1777554649170458136",
+  "false_positive_power": 32,
+  "public_base_url": null,
+  "filters": [
+    {
+      "filter_id": "filter-1777554649170458136",
+      "status": "active",
+      "created_at": 1777554649,
+      "updated_at": 1777559852,
+      "closed_at": null,
+      "m_bits": 16777216,
+      "k": 32,
+      "inserted_count": 101982,
+      "capacity_limit": 363408,
+      "file_name": "filter-1777554649170458136.bloom",
+      "encoding": "base64",
+      "sha256_base64": "/ZvCp9wfo+axdvkvc08KMtOYO7D9TWAgbHgLs9Txy9s=",
+      "download_url": "/filters/filter-1777554649170458136",
+      "window_start_min": 1777554718,
+      "window_start_max": 2642332542
+    }
+  ]
+}
