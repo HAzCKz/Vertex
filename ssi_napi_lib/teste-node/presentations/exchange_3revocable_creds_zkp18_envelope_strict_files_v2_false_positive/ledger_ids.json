@@ -1,0 +1,8 @@
+{
+  "schemaCpfId": "SFx3cNzAJj12dZULDopeDx:2:cpf_revogavel_strict_v2_fp:1.0.1775136560805",
+  "schemaEndId": "SFx3cNzAJj12dZULDopeDx:2:endereco_revogavel_strict_v2_fp:1.0.1775136563838",
+  "schemaContatoId": "SFx3cNzAJj12dZULDopeDx:2:contato_revogavel_strict_v2_fp:1.0.1775136566831",
+  "credDefCpfId": "SFx3cNzAJj12dZULDopeDx:3:CL:51:TAG_CPF_REV_STRICT_V2_FP_1775136569841",
+  "credDefEndId": "SFx3cNzAJj12dZULDopeDx:3:CL:52:TAG_END_REV_STRICT_V2_FP_1775136573423",
+  "credDefContatoId": "SFx3cNzAJj12dZULDopeDx:3:CL:53:TAG_CONTATO_REV_STRICT_V2_FP_1775136576428"
+}

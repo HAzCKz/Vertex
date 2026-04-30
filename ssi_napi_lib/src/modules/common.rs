@@ -2,8 +2,12 @@ use argon2::Algorithm;
 use argon2::Argon2;
 use argon2::Params;
 use argon2::Version;
+use aries_askar::Store;
 use base64::engine::general_purpose::STANDARD as B64;
 use base64::Engine;
+use indy_vdr::ledger::RequestBuilder;
+use indy_vdr::pool::ProtocolVersion;
+use indy_vdr::utils::did::DidValue;
 use napi::{Error, Result};
 use rand::rngs::OsRng;
 use rand::RngCore;
@@ -43,7 +47,7 @@ pub struct CredDefRecord {
     // >>> ADICIONAR ESTES 2:
     pub schema_id: String,
     pub tag: String,
-    
+
     pub signature_type: String, // "CL" (padrão anoncreds)
     pub support_revocation: bool,
     pub on_ledger: bool,
@@ -299,5 +303,147 @@ pub async fn send_request_async(
             "Transação rejeitada pelo Ledger: {:?}",
             e
         ))),
+    }
+}
+
+pub async fn write_attrib_raw_async(
+    store: &Store,
+    pool: &indy_vdr::pool::PoolRunner,
+    did: &str,
+    key: &str,
+    value: &str,
+) -> napi::Result<String> {
+    let rb = RequestBuilder::new(ProtocolVersion::Node1_4);
+
+    let taa_req = rb
+        .build_get_txn_author_agreement_request(None, None)
+        .map_err(|e| napi::Error::from_reason(format!("Erro TAA req: {}", e)))?;
+
+    let taa_resp = send_request_async(pool, taa_req).await?;
+    let taa_val: serde_json::Value = serde_json::from_str(&taa_resp)
+        .map_err(|e| napi::Error::from_reason(format!("Erro JSON TAA: {}", e)))?;
+
+    let taa_acceptance = if !taa_val["result"]["data"].is_null() {
+        let text = taa_val["result"]["data"]["text"].as_str();
+        let version = taa_val["result"]["data"]["version"].as_str();
+        let digest = taa_val["result"]["data"]["digest"].as_str();
+
+        let ts = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        Some(
+            rb.prepare_txn_author_agreement_acceptance_data(
+                text,
+                version,
+                digest,
+                "wallet_agreement",
+                ts,
+            )
+            .map_err(|e| napi::Error::from_reason(format!("Erro TAA data: {}", e)))?,
+        )
+    } else {
+        None
+    };
+
+    let did_obj = DidValue(did.to_string());
+    let raw_obj = serde_json::json!({
+        key: value
+    });
+
+    let mut req = rb
+        .build_attrib_request(&did_obj, &did_obj, None, Some(&raw_obj), None)
+        .map_err(|e| napi::Error::from_reason(format!("Erro build ATTRIB: {}", e)))?;
+
+    if let Some(taa) = taa_acceptance {
+        req.set_txn_author_agreement_acceptance(&taa)
+            .map_err(|e| napi::Error::from_reason(format!("Erro set TAA: {}", e)))?;
+    }
+
+    let mut session = store
+        .session(None)
+        .await
+        .map_err(|e| napi::Error::from_reason(format!("Erro sessão: {}", e)))?;
+
+    let did_entry = session
+        .fetch("did", did, false)
+        .await
+        .map_err(|e| napi::Error::from_reason(format!("Erro fetch DID: {}", e)))?
+        .ok_or_else(|| napi::Error::from_reason("DID não encontrado na wallet"))?;
+
+    let did_json: serde_json::Value = serde_json::from_slice(&did_entry.value)
+        .map_err(|e| napi::Error::from_reason(format!("DID JSON corrompido: {}", e)))?;
+
+    let verkey_ref = did_json["verkey"]
+        .as_str()
+        .ok_or_else(|| napi::Error::from_reason("DID sem verkey"))?;
+
+    let key_entry = session
+        .fetch_key(verkey_ref, false)
+        .await
+        .map_err(|e| napi::Error::from_reason(format!("Erro fetch key: {}", e)))?
+        .ok_or_else(|| napi::Error::from_reason("Chave privada não encontrada"))?;
+
+    let local_key = key_entry
+        .load_local_key()
+        .map_err(|e| napi::Error::from_reason(format!("Erro load key: {}", e)))?;
+
+    let signature_input = req
+        .get_signature_input()
+        .map_err(|e| napi::Error::from_reason(format!("Erro sig input: {}", e)))?;
+
+    let signature = local_key
+        .sign_message(signature_input.as_bytes(), None)
+        .map_err(|e| napi::Error::from_reason(format!("Erro assinar: {}", e)))?;
+
+    req.set_signature(&signature)
+        .map_err(|e| napi::Error::from_reason(format!("Erro set sig: {}", e)))?;
+
+    send_request_async(pool, req).await
+}
+
+pub async fn read_attrib_raw_async(
+    pool: &indy_vdr::pool::PoolRunner,
+    target_did: &str,
+    key: &str,
+) -> napi::Result<String> {
+    let rb = RequestBuilder::new(ProtocolVersion::Node1_4);
+    let target = DidValue(target_did.to_string());
+
+    let req = rb
+        .build_get_attrib_request(None, &target, Some(key.to_string()), None, None, None, None)
+        .map_err(|e| napi::Error::from_reason(format!("Erro build GET_ATTRIB: {}", e)))?;
+
+    let response_str = send_request_async(pool, req).await?;
+    let json: serde_json::Value = serde_json::from_str(&response_str)
+        .map_err(|e| napi::Error::from_reason(format!("Erro parse JSON resposta: {}", e)))?;
+
+    let data_field = &json["result"]["data"];
+
+    let inner_json: serde_json::Value = if data_field.is_string() {
+        serde_json::from_str(data_field.as_str().unwrap_or("{}")).map_err(|e| {
+            napi::Error::from_reason(format!("Erro parse dados internos string: {}", e))
+        })?
+    } else if data_field.is_object() {
+        data_field.clone()
+    } else {
+        return Err(napi::Error::from_reason(format!(
+            "Atributo '{}' não encontrado (data null/invalido) para DID {}",
+            key, target_did
+        )));
+    };
+
+    if let Some(val) = inner_json.get(key) {
+        if let Some(s) = val.as_str() {
+            Ok(s.to_string())
+        } else {
+            Ok(val.to_string())
+        }
+    } else {
+        Err(napi::Error::from_reason(format!(
+            "Chave '{}' não encontrada no payload do atributo",
+            key
+        )))
     }
 }

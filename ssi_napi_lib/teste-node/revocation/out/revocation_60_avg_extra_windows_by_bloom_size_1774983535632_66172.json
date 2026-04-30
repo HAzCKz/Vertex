@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-03-31T18:58:55.632Z",
+  "config": {
+    "base_url": "http://127.0.0.1:8080",
+    "test_filter_sizes": [
+      256,
+      512
+    ],
+    "test_filter_k": 3,
+    "trials_per_size": 1,
+    "primary_window_index": 10,
+    "validity_window_count": 30,
+    "dummy_batch_size": 32,
+    "max_fp_batches": 40,
+    "required_extra_windows_for_fp": 10,
+    "policy": {
+      "max_consecutive_hits_for_revoke": 11,
+      "max_windows_to_request": 10,
+      "allow_post_expiry_confirmation_windows": true,
+      "holder_must_disprove_with_additional_windows": true
+    }
+  },
+  "summaries": [
+    {
+      "m_bits": 256,
+      "k": 3,
+      "capacity_limit": 5,
+      "trials": 1,
+      "false_positive_trials": 1,
+      "false_positive_trial_percent": 100,
+      "confirmed_false_positive_trials": 1,
+      "confirmed_false_positive_trial_percent": 100,
+      "unresolved_after_10_trials": 0,
+      "unresolved_after_10_percent": 0,
+      "no_false_positive_trials": 0,
+      "avg_extra_windows_needed": 1,
+      "median_extra_windows_needed": 1,
+      "min_extra_windows_needed": 1,
+      "max_extra_windows_needed": 1,
+      "distribution": "1:1",
+      "avg_load_percent_at_hit": 23680,
+      "avg_theoretical_fp_percent_at_hit": 99.99971732662182,
+      "avg_duration_ms": 5142
+    },
+    {
+      "m_bits": 512,
+      "k": 3,
+      "capacity_limit": 11,
+      "trials": 1,
+      "false_positive_trials": 0,
+      "false_positive_trial_percent": 0,
+      "confirmed_false_positive_trials": 0,
+      "confirmed_false_positive_trial_percent": 0,
+      "unresolved_after_10_trials": 0,
+      "unresolved_after_10_percent": 0,
+      "no_false_positive_trials": 1,
+      "avg_extra_windows_needed": null,
+      "median_extra_windows_needed": null,
+      "min_extra_windows_needed": null,
+      "max_extra_windows_needed": null,
+      "distribution": "-",
+      "avg_load_percent_at_hit": null,
+      "avg_theoretical_fp_percent_at_hit": null,
+      "avg_duration_ms": 5304
+    }
+  ],
+  "results": [
+    {
+      "m_bits": 256,
+      "trial_index": 1,
+      "false_positive_found": true,
+      "extra_windows_needed": 1,
+      "inserted_count_at_hit": 1184,
+      "load_percent_at_hit": 23680,
+      "theoretical_fp_percent_at_hit": 99.99971732662182,
+      "filter_id": "filter-1774983529959852474",
+      "one_window_trace_pattern": "T",
+      "final_trace_pattern": "T,F",
+      "final_decision": "false_positive_confirmed",
+      "duration_ms": 5142,
+      "recorded_at": "2026-03-31T18:58:50.310Z"
+    },
+    {
+      "m_bits": 512,
+      "trial_index": 1,
+      "false_positive_found": false,
+      "extra_windows_needed": null,
+      "inserted_count_at_hit": null,
+      "load_percent_at_hit": null,
+      "theoretical_fp_percent_at_hit": null,
+      "filter_id": "filter-1774983535494806665",
+      "one_window_trace_pattern": null,
+      "final_trace_pattern": null,
+      "final_decision": null,
+      "duration_ms": 5304,
+      "recorded_at": "2026-03-31T18:58:55.618Z"
+    }
+  ]
+}

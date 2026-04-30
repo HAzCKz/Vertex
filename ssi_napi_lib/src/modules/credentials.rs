@@ -1,5 +1,6 @@
 // src/modules/credentials.rs
 // use crate::modules::common::napi_err;
+use crate::modules::revocation::storage::HOLDER_REVOCATION_BUNDLE_CATEGORY;
 use crate::IndyAgent;
 use napi::{Env, Error, JsObject, Result};
 use napi_derive::napi;
@@ -256,6 +257,109 @@ impl IndyAgent {
             },
             // Converte bool do Rust -> Boolean do JS
             |&mut env, data| env.get_boolean(data),
+        )
+    }
+
+    // =========================================================================
+    //  DELETAR CREDENCIAL LOCAL + HOLDER BUNDLE ASSOCIADO (NOVO)
+    // =========================================================================
+    #[napi]
+    pub fn delete_credential(&self, env: Env, credential_id_local: String) -> Result<JsObject> {
+        let store = match &self.store {
+            Some(s) => s.clone(),
+            None => return Err(Error::from_reason("Wallet fechada!")),
+        };
+
+        env.execute_tokio_future(
+            async move {
+                let credential_id_local = credential_id_local.trim().to_string();
+                if credential_id_local.is_empty() {
+                    return Err(napi::Error::from_reason("credential_id_local inválido"));
+                }
+
+                let mut session = store
+                    .session(None)
+                    .await
+                    .map_err(|e| napi::Error::from_reason(format!("Erro sessão: {}", e)))?;
+
+                let credential_exists = session
+                    .fetch("credential", &credential_id_local, false)
+                    .await
+                    .map_err(|e| napi::Error::from_reason(format!("Erro fetch credencial: {}", e)))?
+                    .is_some();
+
+                if !credential_exists {
+                    let out = serde_json::json!({
+                        "ok": true,
+                        "deleted": false,
+                        "credential_id_local": credential_id_local,
+                        "holder_bundle_ids_deleted": [],
+                    });
+                    return serde_json::to_string(&out).map_err(|e| {
+                        napi::Error::from_reason(format!(
+                            "Erro serializando delete credential: {}",
+                            e
+                        ))
+                    });
+                }
+
+                let bundle_entries = session
+                    .fetch_all(
+                        Some(HOLDER_REVOCATION_BUNDLE_CATEGORY),
+                        Some(TagFilter::is_eq(
+                            "credential_id",
+                            credential_id_local.clone(),
+                        )),
+                        None,
+                        None,
+                        false,
+                        false,
+                    )
+                    .await
+                    .map_err(|e| {
+                        napi::Error::from_reason(format!(
+                            "Erro buscando holder bundles associados: {}",
+                            e
+                        ))
+                    })?;
+
+                let mut deleted_bundle_ids: Vec<String> = Vec::new();
+                for entry in bundle_entries {
+                    session
+                        .remove(HOLDER_REVOCATION_BUNDLE_CATEGORY, &entry.name)
+                        .await
+                        .map_err(|e| {
+                            napi::Error::from_reason(format!(
+                                "Erro removendo holder bundle associado: {}",
+                                e
+                            ))
+                        })?;
+                    deleted_bundle_ids.push(entry.name);
+                }
+
+                session
+                    .remove("credential", &credential_id_local)
+                    .await
+                    .map_err(|e| {
+                        napi::Error::from_reason(format!("Erro removendo credencial: {}", e))
+                    })?;
+
+                session.commit().await.map_err(|e| {
+                    napi::Error::from_reason(format!("Erro commit delete credential: {}", e))
+                })?;
+
+                let out = serde_json::json!({
+                    "ok": true,
+                    "deleted": true,
+                    "credential_id_local": credential_id_local,
+                    "holder_bundle_ids_deleted": deleted_bundle_ids,
+                });
+
+                serde_json::to_string(&out).map_err(|e| {
+                    napi::Error::from_reason(format!("Erro serializando delete credential: {}", e))
+                })
+            },
+            |&mut env, data| env.create_string(&data),
         )
     }
 

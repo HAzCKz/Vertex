@@ -3,7 +3,7 @@ PARA RODAR ESTE TESTE (INDICIO Testnet):
 WALLET_PASS="minha_senha_teste" \
 SUBMITTER_SEED="+0HGyElhOr/GuwUaDsyiTn926bFMrBUh" \
 SUBMITTER_DID="7DffLFWsgrwbt7T1Ni9cmu" \
-ITER=1 WARMUP=0 MEASURE_RESOLVE=0 \
+ITER=25 WARMUP=0 MEASURE_RESOLVE=0 \
 node teste-node/time/test_time_04_indicio_ops_warmup_p99.js
 
 ENV OPCIONAIS:

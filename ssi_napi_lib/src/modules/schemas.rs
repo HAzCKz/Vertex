@@ -20,7 +20,7 @@ use napi_derive::napi;
 // IMPORTANTE: Adicione LedgerSchemaId aqui
 use indy_data_types::SchemaId as LedgerSchemaId;
 // IMPORTANTE: Importe a função do common
-use crate::modules::common::{send_request_async};
+use crate::modules::common::send_request_async;
 
 #[napi]
 impl IndyAgent {
@@ -285,7 +285,6 @@ impl IndyAgent {
                 })
                 .to_string();
 
-
                 let tags = vec![
                     EntryTag::Encrypted("on_ledger".to_string(), "true".to_string()),
                     EntryTag::Encrypted("env".to_string(), "prod".to_string()),
@@ -317,7 +316,7 @@ impl IndyAgent {
         )
     }
 
-        // Métodos extras para controle de schemas =====================================================
+    // Métodos extras para controle de schemas =====================================================
 
     #[napi]
     pub fn schema_build_preview(
