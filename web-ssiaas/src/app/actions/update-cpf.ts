@@ -3,12 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-
-// Valida o formato do CPF (apenas estrutura, sem cálculo de dígitos)
-function isValidCpfFormat(cpf: string): boolean {
-  const cleaned = cpf.replace(/\D/g, "");
-  return cleaned.length === 11;
-}
+import { isValidCpf } from "@/lib/validators/cpf";
 
 type UpdateCpfResult =
   | { success: true }
@@ -27,9 +22,9 @@ export async function updateCpf(
   const rawCpf = formData.get("cpf") as string;
   const cleanedCpf = rawCpf?.replace(/\D/g, "");
 
-  // Validação de formato do CPF
-  if (!cleanedCpf || !isValidCpfFormat(cleanedCpf)) {
-    return { success: false, error: "CPF inválido. Digite os 11 dígitos." };
+  // Valida o CPF usando o algoritmo
+  if (!cleanedCpf || !isValidCpf(cleanedCpf)) {
+    return { success: false, error: "CPF inválido. Verifique os dígitos e tente novamente." };
   }
 
   // Atualiza o CPF do usuário no banco de dados
@@ -39,7 +34,6 @@ export async function updateCpf(
       data: { cpf: cleanedCpf },
     });
   } catch (error: unknown) {
-    // Código P2002 é a violação de constraint unique do Prisma
     if (
       typeof error === "object" &&
       error !== null &&
@@ -51,7 +45,7 @@ export async function updateCpf(
     return { success: false, error: "Erro ao salvar. Tente novamente." };
   }
 
-  // Invalida o cache da sessão para o middleware ler o CPF atualizado
+  // Revalida a página para refletir a atualização do CPF
   revalidatePath("/completar-cadastro");
 
   return { success: true };
