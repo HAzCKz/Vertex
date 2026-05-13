@@ -1,0 +1,68 @@
+{
+  "command": "campaign",
+  "configPath": "/home/yugi/programacao/ssi-electron-revoke/tests/blindrevoke.config.json",
+  "outputRoot": "/home/yugi/programacao/ssi-electron-revoke/tests/results/blindrevoke-bench-20260513-134411",
+  "generatedAt": "2026-05-13T13:44:11.934Z",
+  "startedAt": "2026-05-13T13:44:11.934Z",
+  "completedAt": "2026-05-13T13:49:11.583Z",
+  "totalElapsedMs": 299298,
+  "totalElapsedLabel": "04:59.298",
+  "stageProgress": [
+    {
+      "benchmark": "issue-metrics",
+      "index": 1,
+      "totalStages": 7,
+      "percentComplete": 14.3,
+      "elapsedMs": 25407,
+      "elapsedLabel": "00:25.407"
+    },
+    {
+      "benchmark": "verify-latency",
+      "index": 2,
+      "totalStages": 7,
+      "percentComplete": 28.6,
+      "elapsedMs": 83729,
+      "elapsedLabel": "01:23.729"
+    },
+    {
+      "benchmark": "false-positive",
+      "index": 3,
+      "totalStages": 7,
+      "percentComplete": 42.9,
+      "elapsedMs": 11085,
+      "elapsedLabel": "00:11.085"
+    },
+    {
+      "benchmark": "proof-payload-size",
+      "index": 4,
+      "totalStages": 7,
+      "percentComplete": 57.1,
+      "elapsedMs": 27322,
+      "elapsedLabel": "00:27.322"
+    },
+    {
+      "benchmark": "bloom-throughput",
+      "index": 5,
+      "totalStages": 7,
+      "percentComplete": 71.4,
+      "elapsedMs": 4256,
+      "elapsedLabel": "00:04.256"
+    },
+    {
+      "benchmark": "k-vector-ledger-write",
+      "index": 6,
+      "totalStages": 7,
+      "percentComplete": 85.7,
+      "elapsedMs": 39334,
+      "elapsedLabel": "00:39.334"
+    },
+    {
+      "benchmark": "issuer-revocation",
+      "index": 7,
+      "totalStages": 7,
+      "percentComplete": 100,
+      "elapsedMs": 64926,
+      "elapsedLabel": "01:04.926"
+    }
+  ]
+}

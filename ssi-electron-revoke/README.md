@@ -242,7 +242,12 @@ npm run bench:false-positive
 npm run bench:proof-size
 npm run bench:throughput
 npm run bench:k-ledger
+npm run bench:compare-networks
+npm run bench:ledger-ops
 ```
+
+O `bench:ledger-ops` mede separadamente escritas de `SCHEMA`, `CRED_DEF`, DID comum e `ATTRIB` nas redes von-network e Indicio. Use `--iterations` para escolher a quantidade de repetições por operação.
+As execuções iniciais descartadas como aquecimento são controladas por `SKIP_ITERATIONS_PER_OPERATION` em `tests/blindrevoke-ledger-ops-bench.js`.
 
 Resultados são gravados em:
 

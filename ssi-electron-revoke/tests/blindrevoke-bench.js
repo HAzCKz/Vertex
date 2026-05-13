@@ -267,6 +267,9 @@ function buildKVectorLedgerWriteReportRows(kVectorLedgerResult) {
   return (kVectorLedgerResult?.rows || []).map((row) => ({
     chunk_size_solicitado: row.requestedChunkSizeLabel,
     experimentos: row.experimentCount,
+    escritas_k: row.writeCount,
+    k_reutilizados: row.reusedExistingCount,
+    status: row.status,
     registro_k_ms: row.writeElapsedMs,
     setup_k_ms: row.setupCreateElapsedMs,
     attribs_estimados: row.estimatedAttribWrites,
@@ -427,6 +430,9 @@ function writeReportArtifacts(ctx, result) {
     buildReportSection("Tabela 5B. Tempo de Registro do Vetor K no Ledger", kVectorLedgerRows, [
       { label: "Chunk solicitado", key: "chunk_size_solicitado" },
       { label: "Experimentos", key: "experimentos" },
+      { label: "Escritas K", key: "escritas_k" },
+      { label: "K reutilizados", key: "k_reutilizados" },
+      { label: "Status", key: "status" },
       { label: "Registro K (ms)", key: "registro_k_ms" },
       { label: "Setup K (ms)", key: "setup_k_ms" },
       { label: "ATTRIBs estimados", key: "attribs_estimados" },
@@ -580,6 +586,9 @@ function writeReportArtifacts(ctx, result) {
     markdownTable(kVectorLedgerRows, [
       { label: "Chunk solicitado", key: "chunk_size_solicitado" },
       { label: "Experimentos", key: "experimentos" },
+      { label: "Escritas K", key: "escritas_k" },
+      { label: "K reutilizados", key: "k_reutilizados" },
+      { label: "Status", key: "status" },
       { label: "Registro K (ms)", key: "registro_k_ms" },
       { label: "Setup K (ms)", key: "setup_k_ms" },
       { label: "ATTRIBs estimados", key: "attribs_estimados" },
@@ -1982,8 +1991,16 @@ async function ensureIdentities(ctx) {
   const issuerProvidedDid = firstNonEmpty(ctx.config.identities?.issuer?.did);
   const issuerProvidedVerkey = firstNonEmpty(ctx.config.identities?.issuer?.verkey);
   const issuerLedgerRole = firstNonEmpty(ctx.config.identities?.issuer?.role, "ENDORSER");
+  const issuerUsesSubmitter = ctx.config.identities?.issuer?.useSubmitter === true;
   let issuer;
-  if (issuerProvidedDid && issuerProvidedVerkey) {
+  if (issuerUsesSubmitter) {
+    issuer = {
+      did: submitter.did,
+      verkey: submitter.verkey,
+      role: issuerLedgerRole,
+      reusedSubmitter: true,
+    };
+  } else if (issuerProvidedDid && issuerProvidedVerkey) {
     issuer = { did: issuerProvidedDid, verkey: issuerProvidedVerkey, role: issuerLedgerRole };
   } else {
     issuer = parseDidTuple(await ssi.createOwnDid());
@@ -2031,6 +2048,15 @@ async function createBenchmarkIssuer(ctx) {
     submitterDidConfigured,
   } = await ensureSubmitter(ctx);
   const issuerLedgerRole = firstNonEmpty(ctx.config.identities?.issuer?.role, "ENDORSER");
+  if (ctx.config.identities?.issuer?.useSubmitter === true) {
+    return {
+      did: submitter.did,
+      verkey: submitter.verkey,
+      role: issuerLedgerRole,
+      reusedSubmitter: true,
+    };
+  }
+
   const issuer = parseDidTuple(await ssi.createOwnDid());
   issuer.role = issuerLedgerRole;
   await registerIssuerDidOnLedger(ctx, {
@@ -3391,26 +3417,47 @@ async function runKVectorLedgerWriteBenchmark(ctx) {
     const caseRuns = [];
     for (let iteration = 1; iteration <= iterations; iteration += 1) {
       const issuer = await createBenchmarkIssuer(ctx);
-      const kSetupMeasured = await measureAsync(() => ssi.revocationSetupCreateK(
-        issuer.did,
-        null,
-        requestedChunkSizeBytes
-      ));
-      const kSetup = unwrapLedgerPayload(parseMaybeJson(kSetupMeasured.value, kSetupMeasured.value));
-      const kVector = kSetup?.k_vector || kSetup?.active_k_vector || kSetup?.activeKVector;
-      if (!kVector) {
-        throw new Error("O addon não retornou k_vector durante o benchmark de registro do vetor K.");
+      const existingSetup = await readRevocationSetupFromLedger(ctx.config.genesisPathResolved, issuer.did);
+      const existingAnchor = existingSetup?.activeKAnchor || null;
+      const reusedExistingK = !!existingAnchor?.k_vector_id;
+
+      let kSetupMeasured = null;
+      let kSetup = null;
+      let kVector = existingSetup?.activeKVector || null;
+      let kWriteMeasured = null;
+      let kWrite = null;
+      let writeAnchor = null;
+      let ledgerSetup = existingSetup;
+      let writeStatus = "reused_existing";
+
+      if (reusedExistingK) {
+        logProgress(
+          `k-vector-ledger-write: DID ${issuer.did} ja possui K ativo (${existingAnchor.k_vector_id}); reutilizando sem nova escrita`
+        );
+      } else {
+        kSetupMeasured = await measureAsync(() => ssi.revocationSetupCreateK(
+          issuer.did,
+          null,
+          requestedChunkSizeBytes
+        ));
+        kSetup = unwrapLedgerPayload(parseMaybeJson(kSetupMeasured.value, kSetupMeasured.value));
+        kVector = kSetup?.k_vector || kSetup?.active_k_vector || kSetup?.activeKVector;
+        if (!kVector) {
+          throw new Error("O addon não retornou k_vector durante o benchmark de registro do vetor K.");
+        }
+
+        kWriteMeasured = await measureAsync(() => ssi.revocationWriteKVectorOnLedger(
+          ctx.config.genesisPathResolved,
+          issuer.did,
+          JSON.stringify(kVector),
+          requestedChunkSizeBytes
+        ));
+        kWrite = unwrapLedgerPayload(parseMaybeJson(kWriteMeasured.value, kWriteMeasured.value));
+        writeAnchor = kWrite?.ledger_anchor || kWrite?.active_k_ledger_anchor || null;
+        ledgerSetup = await readRevocationSetupFromLedger(ctx.config.genesisPathResolved, issuer.did);
+        writeStatus = "written";
       }
 
-      const kWriteMeasured = await measureAsync(() => ssi.revocationWriteKVectorOnLedger(
-        ctx.config.genesisPathResolved,
-        issuer.did,
-        JSON.stringify(kVector),
-        requestedChunkSizeBytes
-      ));
-      const kWrite = unwrapLedgerPayload(parseMaybeJson(kWriteMeasured.value, kWriteMeasured.value));
-      const writeAnchor = kWrite?.ledger_anchor || kWrite?.active_k_ledger_anchor || null;
-      const ledgerSetup = await readRevocationSetupFromLedger(ctx.config.genesisPathResolved, issuer.did);
       const resolvedAnchor = ledgerSetup?.activeKAnchor || writeAnchor || null;
 
       const run = {
@@ -3419,10 +3466,12 @@ async function runKVectorLedgerWriteBenchmark(ctx) {
         iteration,
         issuerDid: issuer.did,
         issuerRole: issuer.role,
-        setupCreateElapsedMs: round(kSetupMeasured.elapsedMs),
-        writeElapsedMs: round(kWriteMeasured.elapsedMs),
-        kVectorId: firstNonEmpty(resolvedAnchor?.k_vector_id, kVector?.k_vector_id),
-        vectorHash: firstNonEmpty(resolvedAnchor?.vector_hash, kVector?.vector_hash),
+        reusedExistingK,
+        writeStatus,
+        setupCreateElapsedMs: kSetupMeasured ? round(kSetupMeasured.elapsedMs) : null,
+        writeElapsedMs: kWriteMeasured ? round(kWriteMeasured.elapsedMs) : null,
+        kVectorId: firstNonEmpty(resolvedAnchor?.k_vector_id, kVector?.k_vector_id, existingAnchor?.k_vector_id),
+        vectorHash: firstNonEmpty(resolvedAnchor?.vector_hash, kVector?.vector_hash, existingAnchor?.vector_hash),
         chunkCount: Number(resolvedAnchor?.chunk_count ?? 0),
         effectiveChunkSizeBytes: Number(resolvedAnchor?.chunk_size_bytes ?? 0),
         totalBytes: Number(resolvedAnchor?.total_bytes ?? 0),
@@ -3438,6 +3487,11 @@ async function runKVectorLedgerWriteBenchmark(ctx) {
       requestedChunkSizeBytes: requestedChunkSizeBytes ?? null,
       requestedChunkSizeLabel,
       experimentCount: iterations,
+      writeCount: caseRuns.filter((item) => item.writeStatus === "written").length,
+      reusedExistingCount: caseRuns.filter((item) => item.reusedExistingK).length,
+      status: caseRuns.every((item) => item.reusedExistingK)
+        ? "reused_existing"
+        : (caseRuns.some((item) => item.reusedExistingK) ? "mixed" : "written"),
       writeElapsedMs: summarizeNumbers(caseRuns.map((item) => item.writeElapsedMs)).median,
       setupCreateElapsedMs: summarizeNumbers(caseRuns.map((item) => item.setupCreateElapsedMs)).median,
       estimatedAttribWrites: summarizeNumbers(caseRuns.map((item) => item.estimatedAttribWrites)).median,

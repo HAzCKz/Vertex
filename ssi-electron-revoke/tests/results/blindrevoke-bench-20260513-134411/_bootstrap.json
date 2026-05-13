@@ -1,0 +1,12 @@
+{
+  "command": "campaign",
+  "generatedAt": "2026-05-13T13:44:55.170Z",
+  "bloomBootstrap": [
+    {
+      "manifestUrl": "http://127.0.0.1:8080/manifest",
+      "resetUrl": "http://127.0.0.1:8080/test/reset",
+      "manifestHash": "QBE2N3YIeJTH3ogLTZSGbh1iMxmWJ2mKublix5Ki/M8=",
+      "manifestBytes": 614
+    }
+  ]
+}

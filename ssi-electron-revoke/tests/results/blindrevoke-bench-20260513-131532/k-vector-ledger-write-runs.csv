@@ -1,0 +1,2 @@
+requestedChunkSizeBytes,requestedChunkSizeLabel,iteration,issuerDid,issuerRole,reusedExistingK,writeStatus,setupCreateElapsedMs,writeElapsedMs,kVectorId,vectorHash,chunkCount,effectiveChunkSizeBytes,totalBytes,valueCount,estimatedAttribWrites,writeVerifiedOnLedger
+,default,1,HmcDCGtV9djcSyrCJt1irn,ENDORSER,false,written,1.662,41288.712,k-vector-1778678327,lQoPPmZhhEOV5sGlWy/KHh9oXrfIJupcRbL2j7Qw6dQ=,11,3045,32768,1024,13,true

@@ -15,7 +15,11 @@
     "bench:false-positive": "bash tests/run-blindrevoke-bench.sh false-positive",
     "bench:proof-size": "bash tests/run-blindrevoke-bench.sh proof-payload-size",
     "bench:throughput": "bash tests/run-blindrevoke-bench.sh bloom-throughput",
-    "bench:k-ledger": "bash tests/run-blindrevoke-bench.sh k-vector-ledger-write"
+    "bench:k-ledger": "bash tests/run-blindrevoke-bench.sh k-vector-ledger-write",
+    "bench:indicio": "node tests/blindrevoke-bench-indicio.js",
+    "bench:indicio:k-ledger": "node tests/blindrevoke-bench-indicio.js k-vector-ledger-write",
+    "bench:compare-networks": "node tests/blindrevoke-compare-networks.js",
+    "bench:ledger-ops": "node tests/blindrevoke-ledger-ops-bench.js"
   },
   "devDependencies": {
     "electron": "^30.0.0",

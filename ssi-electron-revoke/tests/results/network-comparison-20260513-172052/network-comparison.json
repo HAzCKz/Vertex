@@ -1,0 +1,96 @@
+{
+  "generatedAt": "2026-05-13T17:20:52.829Z",
+  "outputDir": "/home/yugi/programacao/ssi-electron-revoke/tests/results/network-comparison-20260513-172052",
+  "networks": {
+    "vonNetwork": {
+      "label": "von-network",
+      "outputRoot": "/home/yugi/programacao/ssi-electron-revoke/tests/results/blindrevoke-bench-20260513-134411",
+      "reportDir": "/home/yugi/programacao/ssi-electron-revoke/tests/results/blindrevoke-bench-20260513-134411/report",
+      "paperSummary": "/home/yugi/programacao/ssi-electron-revoke/tests/results/blindrevoke-bench-20260513-134411/report/paper-summary.md",
+      "totalElapsedMs": 299298,
+      "totalElapsedLabel": "04:59.298"
+    },
+    "indicio": {
+      "label": "Indicio",
+      "outputRoot": "/home/yugi/programacao/ssi-electron-revoke/tests/results/indicio/blindrevoke-bench-20260513-133539",
+      "reportDir": "/home/yugi/programacao/ssi-electron-revoke/tests/results/indicio/blindrevoke-bench-20260513-133539/report",
+      "paperSummary": "/home/yugi/programacao/ssi-electron-revoke/tests/results/indicio/blindrevoke-bench-20260513-133539/report/paper-summary.md",
+      "totalElapsedMs": 503412,
+      "totalElapsedLabel": "08:23.412"
+    }
+  },
+  "tables": [
+    {
+      "file": "table-1-issue.csv",
+      "title": "Tabela 1. Emissão da Credencial Revogável",
+      "rowsCompared": 40,
+      "equalValues": 25,
+      "numericDifferences": 15,
+      "textDifferences": 0
+    },
+    {
+      "file": "table-2-verify.csv",
+      "title": "Tabela 2. Latência de Verificação",
+      "rowsCompared": 160,
+      "equalValues": 120,
+      "numericDifferences": 40,
+      "textDifferences": 0
+    },
+    {
+      "file": "table-3-false-positive.csv",
+      "title": "Tabela 3. Falso Positivo",
+      "rowsCompared": 11,
+      "equalValues": 10,
+      "numericDifferences": 1,
+      "textDifferences": 0
+    },
+    {
+      "file": "table-4-proof-size.csv",
+      "title": "Tabela 4. Tamanho do Pacote Completo de Apresentação",
+      "rowsCompared": 72,
+      "equalValues": 25,
+      "numericDifferences": 47,
+      "textDifferences": 0
+    },
+    {
+      "file": "table-4b-proof-diagnostics.csv",
+      "title": "Tabela 4B. Decomposição Diagnóstica da Prova Revogável",
+      "rowsCompared": 48,
+      "equalValues": 18,
+      "numericDifferences": 30,
+      "textDifferences": 0
+    },
+    {
+      "file": "table-5-throughput.csv",
+      "title": "Tabela 5. Throughput do Bloom",
+      "rowsCompared": 5,
+      "equalValues": 1,
+      "numericDifferences": 4,
+      "textDifferences": 0
+    },
+    {
+      "file": "table-5b-k-vector-ledger-write.csv",
+      "title": "Tabela 5B. Tempo de Registro do Vetor K no Ledger",
+      "rowsCompared": 11,
+      "equalValues": 6,
+      "numericDifferences": 4,
+      "textDifferences": 1
+    },
+    {
+      "file": "table-6-issuer-revocation.csv",
+      "title": "Tabela 6. Tempo de Revogação da Credencial pelo Issuer",
+      "rowsCompared": 75,
+      "equalValues": 60,
+      "numericDifferences": 15,
+      "textDifferences": 0
+    },
+    {
+      "file": "table-7-proof-size-delivered.csv",
+      "title": "Tabela 7. Tamanho do Pacote de Apresentação com Entrega Parcial de Janelas",
+      "rowsCompared": 72,
+      "equalValues": 24,
+      "numericDifferences": 48,
+      "textDifferences": 0
+    }
+  ]
+}

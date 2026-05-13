@@ -1,0 +1,9 @@
+{
+  "command": "campaign",
+  "outputRoot": "/home/yugi/programacao/ssi-electron-revoke/tests/results/indicio/blindrevoke-bench-20260513-133539",
+  "reportDir": "/home/yugi/programacao/ssi-electron-revoke/tests/results/indicio/blindrevoke-bench-20260513-133539/report",
+  "paperSummary": "/home/yugi/programacao/ssi-electron-revoke/tests/results/indicio/blindrevoke-bench-20260513-133539/report/paper-summary.md",
+  "generatedAt": "2026-05-13T13:44:03.095Z",
+  "totalElapsedMs": 503412,
+  "totalElapsedLabel": "08:23.412"
+}

@@ -5,6 +5,8 @@ Esta pasta concentra os scripts de benchmark para a seção de avaliacao experim
 ## Arquivos
 
 - `blindrevoke-bench.js`: CLI principal para executar os benchmarks.
+- `blindrevoke-bench-indicio.js`: launcher do mesmo benchmark usando a rede Indicio testnet.
+- `blindrevoke-indicio.config.json`: configuracao da rede Indicio testnet com o DID ENDORSER como submitter/emissor.
 - `blindrevoke.config.example.json`: modelo de configuracao.
 - `benchmarks/utils.js`: utilitarios de serializacao, estatistica e escrita de resultados.
 
@@ -83,6 +85,22 @@ Se voce ja possui um DID emissor registrado no ledger, pode evitar o registro au
 }
 ```
 
+Para ledgers onde ha apenas um DID com permissao, como a Indicio testnet usada neste projeto, o benchmark tambem aceita reutilizar o submitter como emissor:
+
+```json
+"identities": {
+  "submitter": {
+    "seed": "SUA_SEED_ENDORSER",
+    "did": "SEU_DID_ENDORSER"
+  },
+  "issuer": {
+    "role": "ENDORSER",
+    "useSubmitter": true,
+    "registerOnLedger": false
+  }
+}
+```
+
 3. Para o experimento de falso positivo, configure `filterProfiles.falsePositive.manifestUrl` apontando para um servico Bloom com filtro menor e informe tambem `filterBits` (e opcionalmente `kHashes`), pois o benchmark agora envia esses parametros no `POST /test/reset`. O perfil padrao `m = 16777216` e `345238` entradas tende a produzir poucos falsos positivos observaveis.
 4. Garanta tambem um `falsePositive.fillerCredentialCount` maior que zero, porque sao esses fillers revogados que carregam o Bloom para o experimento de falso positivo.
 
@@ -115,7 +133,16 @@ npm run bench:false-positive
 npm run bench:proof-size
 npm run bench:throughput
 npm run bench:k-ledger
+npm run bench:indicio
+npm run bench:indicio:k-ledger
+npm run bench:compare-networks
+npm run bench:ledger-ops
 ```
+
+O comando `bench:compare-networks` nao executa os benchmarks de novo. Ele procura o run mais recente da von-network em `tests/results/blindrevoke-bench-*`, o run mais recente da Indicio em `tests/results/indicio/blindrevoke-bench-*` e gera um comparativo em Markdown em `tests/results/network-comparison-*/network-comparison.md`.
+
+O comando `bench:ledger-ops` executa um teste separado para comparar operações básicas de ledger entre von-network e Indicio. Por padrão ele usa a quantidade configurada em `DEFAULT_ITERATIONS` no script, e você pode sobrescrever com `--iterations`. A saída fica em `tests/results/ledger-ops-*/`, com CSV/JSON por rede e um `ledger-ops-comparison.md` final.
+O script também possui a constante `SKIP_ITERATIONS_PER_OPERATION` no topo do arquivo para descartar execuções iniciais de aquecimento de cada operação.
 
 ### Launcher direto
 
@@ -148,6 +175,9 @@ npm run bench:blindrevoke -- false-positive --config tests/blindrevoke.config.js
 npm run bench:blindrevoke -- proof-payload-size --config tests/blindrevoke.config.json
 npm run bench:blindrevoke -- bloom-throughput --config tests/blindrevoke.config.json
 npm run bench:blindrevoke -- k-vector-ledger-write --config tests/blindrevoke.config.json
+node tests/blindrevoke-bench-indicio.js campaign
+node tests/blindrevoke-bench-indicio.js k-vector-ledger-write
+node tests/blindrevoke-ledger-ops-bench.js all --iterations 30
 ```
 
 ## O que cada benchmark mede
@@ -219,11 +249,37 @@ Mede operacoes sequenciais sem paralelismo:
 Mede o tempo gasto pelo emissor para publicar o vetor `K` no ledger via `ATTRIBs`:
 
 - cria um DID de emissor temporario por execucao para que cada registro do `K` seja realmente novo no ledger
+- quando `identities.issuer.useSubmitter = true`, consulta primeiro o `ATTRIB` ativo do DID; se ja existir um vetor `K`, reutiliza o registro e segue sem tentar sobrescrever o ledger
 - mede separadamente o `setup` local de `revocationSetupCreateK` e a escrita no ledger de `revocationWriteKVectorOnLedger`
 - coleta `chunk_count`, `chunk_size_bytes`, `total_bytes` e uma estimativa de quantos `ATTRIBs` foram escritos
 - por padrao usa o chunk size do addon; se quiser comparar estrategias de fragmentacao, configure `kVectorLedger.chunkSizeBytesList` com valores como `[null, 2048, 1024]`
 - as repeticoes sao controladas por `kVectorLedger.iterations`
 - o tempo de registro do DID do emissor no ledger fica fora da janela medida, para o benchmark refletir apenas a publicacao do vetor `K`
+
+### `ledger-ops`
+
+Benchmark separado para medir custos básicos de escrita no ledger, sem passar pelo fluxo completo de credencial revogável:
+
+- `SCHEMA`: mede `createAndRegisterSchema`, o mesmo caminho usado pelo benchmark BlindRevoke e pela tela de Schemas
+- `CRED_DEF`: usa os schemas gravados na etapa anterior e mede `createAndRegisterCredDef`
+- DID comum: cria o DID localmente antes da medição e mede o `NYM` sem papel (`role = null`)
+- `ATTRIB`: mede a escrita de um atributo unico no DID submitter da rede
+
+Uso padrão:
+
+```bash
+npm run bench:ledger-ops
+```
+
+Também é possível ajustar a quantidade de repetições:
+
+```bash
+node tests/blindrevoke-ledger-ops-bench.js all --iterations 10
+```
+
+As primeiras execuções de aquecimento por operação são controladas por `SKIP_ITERATIONS_PER_OPERATION` em `tests/blindrevoke-ledger-ops-bench.js`. Elas aparecem no CSV com `included_in_stats=false`, mas não entram no resumo nem no comparativo.
+
+O comparativo final usa bordas nas tabelas do Markdown para facilitar a leitura e escreve um ponteiro em `tests/results/latest-ledger-ops-comparison.json`.
 
 ### `issuer-revocation`
 
