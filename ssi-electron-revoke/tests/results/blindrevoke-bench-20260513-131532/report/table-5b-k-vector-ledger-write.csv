@@ -1,0 +1,2 @@
+chunk_size_solicitado,experimentos,escritas_k,k_reutilizados,status,registro_k_ms,setup_k_ms,attribs_estimados,chunks_k,chunk_size_efetivo_bytes,total_k_bytes,valores_k
+default,1,1,0,written,41288.712,1.662,13,11,3045,32768,1024

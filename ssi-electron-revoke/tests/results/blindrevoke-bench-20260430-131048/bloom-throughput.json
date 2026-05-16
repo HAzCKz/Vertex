@@ -1,0 +1,331 @@
+{
+  "benchmark": "bloom-throughput",
+  "generatedAt": "2026-04-30T13:14:01.860Z",
+  "sampleCredentialCount": 20,
+  "sampleWindowCount": 100,
+  "revokeFromWindow": 0,
+  "totalBloomWrites": 2200,
+  "writesPerCredential": {
+    "count": 20,
+    "min": 110,
+    "max": 110,
+    "mean": 110,
+    "median": 110,
+    "p95": 110,
+    "stdev": 0
+  },
+  "writeCredentialLatencyMs": {
+    "count": 20,
+    "min": 65.7,
+    "max": 74.391,
+    "mean": 69.661,
+    "median": 68.891,
+    "p95": 73.394,
+    "stdev": 2.514
+  },
+  "writeCredentialOpsPerSecond": 13.728358,
+  "writeLatencyMs": {
+    "count": 20,
+    "min": 0.597,
+    "max": 0.676,
+    "mean": 0.633,
+    "median": 0.626,
+    "p95": 0.667,
+    "stdev": 0.023
+  },
+  "writeOpsPerSecond": 1510.119412,
+  "readLatencyMs": {
+    "count": 20,
+    "min": 0.541,
+    "max": 2.415,
+    "mean": 1.039,
+    "median": 1.048,
+    "p95": 1.874,
+    "stdev": 0.476
+  },
+  "readOpsPerSecond": 457.285656,
+  "writeRuns": [
+    {
+      "issuerLocalCredentialId": "throughput-1-1777554837583-932137910",
+      "elapsedMs": 66.425,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-2-1777554837733-669979294",
+      "elapsedMs": 67.159,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-3-1777554837869-17078919",
+      "elapsedMs": 66.898,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-4-1777554838006-54915608",
+      "elapsedMs": 73.342,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-5-1777554838148-292355884",
+      "elapsedMs": 68.497,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-6-1777554838279-315965277",
+      "elapsedMs": 67.314,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-7-1777554838424-575455857",
+      "elapsedMs": 67.975,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-8-1777554838553-689599734",
+      "elapsedMs": 68.789,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-9-1777554838683-331296583",
+      "elapsedMs": 74.391,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-10-1777554838828-2634361",
+      "elapsedMs": 70.898,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-11-1777554838963-189666943",
+      "elapsedMs": 71.507,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-12-1777554839104-132678499",
+      "elapsedMs": 68.019,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-13-1777554839246-698831867",
+      "elapsedMs": 72.511,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-14-1777554839392-39736350",
+      "elapsedMs": 71.999,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-15-1777554839530-359968347",
+      "elapsedMs": 70.774,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-16-1777554839671-248841177",
+      "elapsedMs": 70.827,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-17-1777554839797-764671098",
+      "elapsedMs": 68.645,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-18-1777554839933-618298234",
+      "elapsedMs": 65.7,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-19-1777554840065-468031379",
+      "elapsedMs": 68.993,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "issuerLocalCredentialId": "throughput-20-1777554840205-780103195",
+      "elapsedMs": 72.552,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    }
+  ],
+  "readRuns": [
+    {
+      "issuerLocalCredentialId": "throughput-1-1777554837583-932137910",
+      "elapsedMs": 1.845,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-2-1777554837733-669979294",
+      "elapsedMs": 1.269,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-3-1777554837869-17078919",
+      "elapsedMs": 2.415,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-4-1777554838006-54915608",
+      "elapsedMs": 1.298,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-5-1777554838148-292355884",
+      "elapsedMs": 1.097,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-6-1777554838279-315965277",
+      "elapsedMs": 1.441,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-7-1777554838424-575455857",
+      "elapsedMs": 1.224,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-8-1777554838553-689599734",
+      "elapsedMs": 1.003,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-9-1777554838683-331296583",
+      "elapsedMs": 1.093,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-10-1777554838828-2634361",
+      "elapsedMs": 1.136,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-11-1777554838963-189666943",
+      "elapsedMs": 1.125,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-12-1777554839104-132678499",
+      "elapsedMs": 0.753,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-13-1777554839246-698831867",
+      "elapsedMs": 0.714,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-14-1777554839392-39736350",
+      "elapsedMs": 0.609,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-15-1777554839530-359968347",
+      "elapsedMs": 0.749,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-16-1777554839671-248841177",
+      "elapsedMs": 0.604,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-17-1777554839797-764671098",
+      "elapsedMs": 0.693,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-18-1777554839933-618298234",
+      "elapsedMs": 0.619,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-19-1777554840065-468031379",
+      "elapsedMs": 0.541,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    },
+    {
+      "issuerLocalCredentialId": "throughput-20-1777554840205-780103195",
+      "elapsedMs": 0.56,
+      "decision": "needs_next_window",
+      "revoked": false,
+      "manifestSource": "service_live"
+    }
+  ]
+}

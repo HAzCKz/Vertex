@@ -1,0 +1,9 @@
+janelas_validas,experimentos,janelas_extras_fp,janelas_entregues_verificador,tempo_total_montagem_ms,tempo_prova_revogavel_ms,tempo_serializacao_payload_ms,tempo_criptografia_envelope_ms,payload_apresentacao_bytes,envelope_criptografado_bytes
+1,3,10,1,18.508,17.546,0.063,0.774,10140,14640
+10,3,10,1,14.918,14.049,0.062,0.714,10215,14741
+100,3,10,1,15.327,14.456,0.047,0.491,10340,14906
+365,3,10,3,16.688,15.79,0.081,0.627,14013,19803
+1000,3,10,10,17.914,16.8,0.088,0.858,27265,37475
+5000,3,10,50,34.81,32.472,0.43,1.742,108920,146347
+10000,3,10,100,47.39,40.768,0.578,2.651,214401,286992
+25000,3,10,250,91.966,83.995,1.897,5.186,535157,714664

@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-03-31T12:39:39.489Z",
+  "config": {
+    "base_url": "http://127.0.0.1:8080",
+    "test_filter_m_bits": 200,
+    "test_filter_k": 3,
+    "planned_trials": 1,
+    "executed_trials": 1,
+    "run_mode": "smoke",
+    "primary_window_index": 10,
+    "validity_window_count": 30,
+    "dummy_batch_size": 64,
+    "max_fp_batches": 20,
+    "verify_baseline_each_trial": false,
+    "stop_after_first_false_positive_in_smoke": true,
+    "policy": {
+      "max_consecutive_hits_for_revoke": 11,
+      "max_windows_to_request": 10,
+      "allow_post_expiry_confirmation_windows": true,
+      "holder_must_disprove_with_additional_windows": true
+    }
+  },
+  "summary": {
+    "total_trials": 1,
+    "false_positive_trials": 1,
+    "false_positive_trial_percent": 100,
+    "no_false_positive_within_budget": 0,
+    "no_false_positive_within_budget_percent": 0,
+    "one_extra_window_sufficient": 1,
+    "one_extra_window_sufficient_percent": 100,
+    "two_extra_windows_required": 0,
+    "two_extra_windows_required_percent": 0,
+    "two_extra_windows_insufficient": 0,
+    "two_extra_windows_insufficient_percent": 0,
+    "unexpected_classifications": 0,
+    "avg_load_percent_at_hit": 3200,
+    "avg_inserted_count_at_hit": 128,
+    "avg_trial_duration_ms": 697,
+    "avg_theoretical_fp_percent_at_hit": 62.15088060457747
+  },
+  "results": [
+    {
+      "trial_index": 1,
+      "planned_trials": 1,
+      "false_positive_found": true,
+      "classification": "1_extra_window_sufficient",
+      "filter_id": "filter-1774960779166823030",
+      "capacity_limit": 4,
+      "inserted_count_at_hit": 128,
+      "batches_used": 2,
+      "load_percent_at_hit": 3200,
+      "theoretical_fp_percent_at_hit": 62.15088060457747,
+      "one_window_decision": "needs_next_window",
+      "two_window_decision": "false_positive_confirmed",
+      "three_window_decision": null,
+      "two_window_trace_pattern": "T,F",
+      "three_window_trace_pattern": null,
+      "duration_ms": 697,
+      "recorded_at": "2026-03-31T12:39:39.478Z"
+    }
+  ]
+}

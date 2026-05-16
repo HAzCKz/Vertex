@@ -1,0 +1,84 @@
+{
+  "reportDir": "/home/yugi/programacao/ssi-electron-revoke/tests/results/blindrevoke-bench-20260513-131532/report",
+  "totalElapsedMs": 301362,
+  "totalElapsedLabel": "05:01.362",
+  "stageProgress": [
+    {
+      "benchmark": "issue-metrics",
+      "index": 1,
+      "totalStages": 7,
+      "percentComplete": 14.3,
+      "elapsedMs": 25168,
+      "elapsedLabel": "00:25.168"
+    },
+    {
+      "benchmark": "verify-latency",
+      "index": 2,
+      "totalStages": 7,
+      "percentComplete": 28.6,
+      "elapsedMs": 84138,
+      "elapsedLabel": "01:24.138"
+    },
+    {
+      "benchmark": "false-positive",
+      "index": 3,
+      "totalStages": 7,
+      "percentComplete": 42.9,
+      "elapsedMs": 11427,
+      "elapsedLabel": "00:11.427"
+    },
+    {
+      "benchmark": "proof-payload-size",
+      "index": 4,
+      "totalStages": 7,
+      "percentComplete": 57.1,
+      "elapsedMs": 27447,
+      "elapsedLabel": "00:27.447"
+    },
+    {
+      "benchmark": "bloom-throughput",
+      "index": 5,
+      "totalStages": 7,
+      "percentComplete": 71.4,
+      "elapsedMs": 4428,
+      "elapsedLabel": "00:04.428"
+    },
+    {
+      "benchmark": "k-vector-ledger-write",
+      "index": 6,
+      "totalStages": 7,
+      "percentComplete": 85.7,
+      "elapsedMs": 41515,
+      "elapsedLabel": "00:41.515"
+    },
+    {
+      "benchmark": "issuer-revocation",
+      "index": 7,
+      "totalStages": 7,
+      "percentComplete": 100,
+      "elapsedMs": 64903,
+      "elapsedLabel": "01:04.903"
+    }
+  ],
+  "files": [
+    "paper-summary.md",
+    "table-1-issue.csv",
+    "table-1-issue.md",
+    "table-2-verify.csv",
+    "table-2-verify.md",
+    "table-3-false-positive.csv",
+    "table-3-false-positive.md",
+    "table-4-proof-size.csv",
+    "table-4-proof-size.md",
+    "table-4b-proof-diagnostics.csv",
+    "table-4b-proof-diagnostics.md",
+    "table-5-throughput.csv",
+    "table-5-throughput.md",
+    "table-5b-k-vector-ledger-write.csv",
+    "table-5b-k-vector-ledger-write.md",
+    "table-6-issuer-revocation.csv",
+    "table-6-issuer-revocation.md",
+    "table-7-proof-size-delivered.csv",
+    "table-7-proof-size-delivered.md"
+  ]
+}

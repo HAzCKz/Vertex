@@ -1,0 +1,16 @@
+janelas,cenario,experimentos,janela_revogacao,tempo_revogacao_ms,chaves_esperadas,chaves_escritas
+100,revoked_early,3,0,67.698,110,110
+100,revoked_middle,3,50,65.018,60,60
+100,revoked_late,3,99,63.067,11,11
+365,revoked_early,3,0,85.203,375,375
+365,revoked_middle,3,182,73.709,193,193
+365,revoked_late,3,364,61.437,11,11
+1000,revoked_early,3,0,123.265,1010,1010
+1000,revoked_middle,3,500,92.722,510,510
+1000,revoked_late,3,999,66.129,11,11
+5000,revoked_early,3,0,364.395,5010,5010
+5000,revoked_middle,3,2500,216.905,2510,2510
+5000,revoked_late,3,4999,81.745,11,11
+10000,revoked_early,3,0,680.629,10010,10010
+10000,revoked_middle,3,5000,369.34,5010,5010
+10000,revoked_late,3,9999,73.676,11,11

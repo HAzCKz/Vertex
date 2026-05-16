@@ -12,8 +12,9 @@ mod modules {
     pub mod envelope;
     pub mod messaging;
     pub mod presentations;
+    pub mod revocation;
     pub mod schemas;
-    pub mod wallets; 
+    pub mod wallets;
 }
 use crate::modules::common::*;
 

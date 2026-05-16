@@ -1,0 +1,302 @@
+{
+  "benchmark": "false-positive",
+  "generatedAt": "2026-05-13T13:18:15.835Z",
+  "manifestUrl": "http://127.0.0.1:8081/manifest",
+  "fillerCount": 8,
+  "targetCount": 20,
+  "windowCount": 365,
+  "observedFalsePositives": 0,
+  "observedFalsePositiveRate": 0,
+  "escapedFalsePositives": 0,
+  "escapedFalsePositiveRate": 0,
+  "latencyMs": {
+    "count": 20,
+    "min": 170.405,
+    "max": 252.283,
+    "mean": 205.953,
+    "median": 200.884,
+    "p95": 241.598,
+    "stdev": 22.888
+  },
+  "scannedWindows": {
+    "count": 20,
+    "min": 20,
+    "max": 20,
+    "mean": 20,
+    "median": 20,
+    "p95": 20,
+    "stdev": 0
+  },
+  "fillers": [
+    {
+      "issuerLocalCredentialId": "fp-filler-1-1778678284671-545908050",
+      "revokeElapsedMs": 35.483,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    },
+    {
+      "issuerLocalCredentialId": "fp-filler-2-1778678284937-679883917",
+      "revokeElapsedMs": 34.843,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    },
+    {
+      "issuerLocalCredentialId": "fp-filler-3-1778678285202-473801662",
+      "revokeElapsedMs": 34.152,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    },
+    {
+      "issuerLocalCredentialId": "fp-filler-4-1778678285466-905179004",
+      "revokeElapsedMs": 34.235,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    },
+    {
+      "issuerLocalCredentialId": "fp-filler-5-1778678285734-439374387",
+      "revokeElapsedMs": 33.791,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    },
+    {
+      "issuerLocalCredentialId": "fp-filler-6-1778678286010-590999211",
+      "revokeElapsedMs": 40.937,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    },
+    {
+      "issuerLocalCredentialId": "fp-filler-7-1778678286301-340431836",
+      "revokeElapsedMs": 41.108,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    },
+    {
+      "issuerLocalCredentialId": "fp-filler-8-1778678286579-823352586",
+      "revokeElapsedMs": 35.772,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375
+    }
+  ],
+  "runs": [
+    {
+      "trial": 1,
+      "elapsedMs": 174.535,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 2,
+      "elapsedMs": 199.708,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 3,
+      "elapsedMs": 228.888,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 4,
+      "elapsedMs": 241.036,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 5,
+      "elapsedMs": 210.432,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 6,
+      "elapsedMs": 178.898,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 7,
+      "elapsedMs": 223.167,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 8,
+      "elapsedMs": 195.923,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 9,
+      "elapsedMs": 170.405,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 10,
+      "elapsedMs": 223.664,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 11,
+      "elapsedMs": 177.121,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 12,
+      "elapsedMs": 204.07,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 13,
+      "elapsedMs": 188.6,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 14,
+      "elapsedMs": 252.283,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 15,
+      "elapsedMs": 198.268,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 16,
+      "elapsedMs": 221.41,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 17,
+      "elapsedMs": 198.052,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 18,
+      "elapsedMs": 202.059,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 19,
+      "elapsedMs": 197.773,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    },
+    {
+      "trial": 20,
+      "elapsedMs": 232.764,
+      "scannedWindows": 20,
+      "mode": "binary_window_search",
+      "decision": "not_revoked",
+      "revoked": false,
+      "accepted": true,
+      "falsePositiveConfirmed": false,
+      "escapedFalsePositive": false
+    }
+  ]
+}

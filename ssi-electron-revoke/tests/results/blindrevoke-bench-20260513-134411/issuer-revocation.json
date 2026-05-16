@@ -1,0 +1,157 @@
+{
+  "benchmark": "issuer-revocation",
+  "generatedAt": "2026-05-13T13:49:11.230Z",
+  "iterations": 3,
+  "rows": [
+    {
+      "windowCountRequested": 100,
+      "scenario": "revoked_early",
+      "experimentCount": 3,
+      "revokeFromWindow": 0,
+      "elapsedMs": 67.698,
+      "expectedKeysToWrite": 110,
+      "actualKeysWritten": 110,
+      "bloomInserted": 110
+    },
+    {
+      "windowCountRequested": 100,
+      "scenario": "revoked_middle",
+      "experimentCount": 3,
+      "revokeFromWindow": 50,
+      "elapsedMs": 65.018,
+      "expectedKeysToWrite": 60,
+      "actualKeysWritten": 60,
+      "bloomInserted": 60
+    },
+    {
+      "windowCountRequested": 100,
+      "scenario": "revoked_late",
+      "experimentCount": 3,
+      "revokeFromWindow": 99,
+      "elapsedMs": 63.067,
+      "expectedKeysToWrite": 11,
+      "actualKeysWritten": 11,
+      "bloomInserted": 11
+    },
+    {
+      "windowCountRequested": 365,
+      "scenario": "revoked_early",
+      "experimentCount": 3,
+      "revokeFromWindow": 0,
+      "elapsedMs": 85.203,
+      "expectedKeysToWrite": 375,
+      "actualKeysWritten": 375,
+      "bloomInserted": 375
+    },
+    {
+      "windowCountRequested": 365,
+      "scenario": "revoked_middle",
+      "experimentCount": 3,
+      "revokeFromWindow": 182,
+      "elapsedMs": 73.709,
+      "expectedKeysToWrite": 193,
+      "actualKeysWritten": 193,
+      "bloomInserted": 193
+    },
+    {
+      "windowCountRequested": 365,
+      "scenario": "revoked_late",
+      "experimentCount": 3,
+      "revokeFromWindow": 364,
+      "elapsedMs": 61.437,
+      "expectedKeysToWrite": 11,
+      "actualKeysWritten": 11,
+      "bloomInserted": 11
+    },
+    {
+      "windowCountRequested": 1000,
+      "scenario": "revoked_early",
+      "experimentCount": 3,
+      "revokeFromWindow": 0,
+      "elapsedMs": 123.265,
+      "expectedKeysToWrite": 1010,
+      "actualKeysWritten": 1010,
+      "bloomInserted": 1010
+    },
+    {
+      "windowCountRequested": 1000,
+      "scenario": "revoked_middle",
+      "experimentCount": 3,
+      "revokeFromWindow": 500,
+      "elapsedMs": 92.722,
+      "expectedKeysToWrite": 510,
+      "actualKeysWritten": 510,
+      "bloomInserted": 510
+    },
+    {
+      "windowCountRequested": 1000,
+      "scenario": "revoked_late",
+      "experimentCount": 3,
+      "revokeFromWindow": 999,
+      "elapsedMs": 66.129,
+      "expectedKeysToWrite": 11,
+      "actualKeysWritten": 11,
+      "bloomInserted": 11
+    },
+    {
+      "windowCountRequested": 5000,
+      "scenario": "revoked_early",
+      "experimentCount": 3,
+      "revokeFromWindow": 0,
+      "elapsedMs": 364.395,
+      "expectedKeysToWrite": 5010,
+      "actualKeysWritten": 5010,
+      "bloomInserted": 5010
+    },
+    {
+      "windowCountRequested": 5000,
+      "scenario": "revoked_middle",
+      "experimentCount": 3,
+      "revokeFromWindow": 2500,
+      "elapsedMs": 216.905,
+      "expectedKeysToWrite": 2510,
+      "actualKeysWritten": 2510,
+      "bloomInserted": 2510
+    },
+    {
+      "windowCountRequested": 5000,
+      "scenario": "revoked_late",
+      "experimentCount": 3,
+      "revokeFromWindow": 4999,
+      "elapsedMs": 81.745,
+      "expectedKeysToWrite": 11,
+      "actualKeysWritten": 11,
+      "bloomInserted": 11
+    },
+    {
+      "windowCountRequested": 10000,
+      "scenario": "revoked_early",
+      "experimentCount": 3,
+      "revokeFromWindow": 0,
+      "elapsedMs": 680.629,
+      "expectedKeysToWrite": 10010,
+      "actualKeysWritten": 10010,
+      "bloomInserted": 10010
+    },
+    {
+      "windowCountRequested": 10000,
+      "scenario": "revoked_middle",
+      "experimentCount": 3,
+      "revokeFromWindow": 5000,
+      "elapsedMs": 369.34,
+      "expectedKeysToWrite": 5010,
+      "actualKeysWritten": 5010,
+      "bloomInserted": 5010
+    },
+    {
+      "windowCountRequested": 10000,
+      "scenario": "revoked_late",
+      "experimentCount": 3,
+      "revokeFromWindow": 9999,
+      "elapsedMs": 73.676,
+      "expectedKeysToWrite": 11,
+      "actualKeysWritten": 11,
+      "bloomInserted": 11
+    }
+  ]
+}

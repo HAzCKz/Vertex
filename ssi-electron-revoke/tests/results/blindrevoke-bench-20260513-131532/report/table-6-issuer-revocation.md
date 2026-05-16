@@ -1,0 +1,17 @@
+| Janelas | Cenário | Experimentos | Janela revogação | Revogação (ms) | Chaves esperadas | Chaves escritas |
+| --- | --- | --- | --- | --- | --- | --- |
+| 100 | revoked_early | 3 | 0 | 70.629 | 110 | 110 |
+| 100 | revoked_middle | 3 | 50 | 70.425 | 60 | 60 |
+| 100 | revoked_late | 3 | 99 | 63.566 | 11 | 11 |
+| 365 | revoked_early | 3 | 0 | 84.401 | 375 | 375 |
+| 365 | revoked_middle | 3 | 182 | 72.762 | 193 | 193 |
+| 365 | revoked_late | 3 | 364 | 60.225 | 11 | 11 |
+| 1000 | revoked_early | 3 | 0 | 121.205 | 1010 | 1010 |
+| 1000 | revoked_middle | 3 | 500 | 91.565 | 510 | 510 |
+| 1000 | revoked_late | 3 | 999 | 64.369 | 11 | 11 |
+| 5000 | revoked_early | 3 | 0 | 380.249 | 5010 | 5010 |
+| 5000 | revoked_middle | 3 | 2500 | 214.622 | 2510 | 2510 |
+| 5000 | revoked_late | 3 | 4999 | 79.944 | 11 | 11 |
+| 10000 | revoked_early | 3 | 0 | 670.101 | 10010 | 10010 |
+| 10000 | revoked_middle | 3 | 5000 | 370.153 | 5010 | 5010 |
+| 10000 | revoked_late | 3 | 9999 | 73.164 | 11 | 11 |

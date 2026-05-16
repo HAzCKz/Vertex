@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+//  url      = env("DATABASE_URL")
+}
+
+// Pode ser issuer E holder
+model User {
+  id            String    @id @default(cuid())  // ID interno da plataforma
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+
+  // É opcional no banco porque o usuário preenche APÓS o primeiro login.
+  cpf           String?   @unique
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Schemas que este usuário CRIOU (papel de Issuer)
+  schemasCreated CredentialSchema[]
+
+  // Credenciais que este usuário EMITIU para outros (papel de Issuer)
+  credentialsIssued VerifiableCredential[] @relation("IssuerRelation")
+
+  // Credenciais que este usuário RECEBEU (papel de Holder)
+  credentialsReceived VerifiableCredential[] @relation("HolderRelation")
+
+  // Necessário pelo @auth/prisma-adapter (Auth.js gerencia isso)
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+
+// Define a "estrutura" de uma credencial (como um formulário em branco).
+model CredentialSchema {
+  id          String   @id @default(cuid())
+  name        String                          // Ex: "Diploma de Graduação"
+  description String?
+  version     String   @default("1.0")
+
+  // O JSON que define os campos exigidos pela credencial.
+  jsonSchema  Json
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quem criou este schema (o Issuer)
+  creatorId   String
+  creator     User     @relation(fields: [creatorId], references: [id])
+
+  // Credenciais emitidas a partir deste schema
+  credentials VerifiableCredential[]
+
+  @@map("credential_schemas")
+}
+
+
+// A credencial em si — já preenchida e emitida para um Holder.
+// Segue a estrutura W3C VC Data Model.
+model VerifiableCredential {
+  id        String   @id @default(cuid())
+
+  // O payload completo da VC no formato W3C/JSON-LD
+  // Ficará aqui: @context, type, issuer, credentialSubject, proof, etc.
+  vcPayload Json
+
+  status    VCStatus @default(PENDING) // PENDING | ACTIVE | REVOKED
+
+  issuedAt  DateTime @default(now())
+  expiresAt DateTime?
+
+  issuerId  String
+  issuer    User     @relation("IssuerRelation", fields: [issuerId], references: [id])
+
+  holderId  String
+  holder    User     @relation("HolderRelation", fields: [holderId], references: [id])
+
+  schemaId  String
+  schema    CredentialSchema @relation(fields: [schemaId], references: [id])
+
+  @@map("verifiable_credentials")
+}
+
+
+// Ciclo de vida de uma VC (baseado no W3C VC Status List)
+enum VCStatus {
+  PENDING   // Oferta enviada, aguardando aceite do Holder
+  ACTIVE    // Aceita e válida
+  REVOKED   // Revogada pelo Issuer
+}
+
+
+// MODELS ABAIXO: Gerados automaticamente pelo @auth/prisma-adapter
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}

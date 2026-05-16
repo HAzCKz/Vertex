@@ -1,0 +1,8 @@
+{
+  "generatedAt": "2026-05-13T17:20:52.829Z",
+  "outputDir": "/home/yugi/programacao/ssi-electron-revoke/tests/results/network-comparison-20260513-172052",
+  "markdown": "/home/yugi/programacao/ssi-electron-revoke/tests/results/network-comparison-20260513-172052/network-comparison.md",
+  "summary": "/home/yugi/programacao/ssi-electron-revoke/tests/results/network-comparison-20260513-172052/network-comparison.json",
+  "vonNetworkRun": "/home/yugi/programacao/ssi-electron-revoke/tests/results/blindrevoke-bench-20260513-134411",
+  "indicioRun": "/home/yugi/programacao/ssi-electron-revoke/tests/results/indicio/blindrevoke-bench-20260513-133539"
+}

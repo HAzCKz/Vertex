@@ -1,0 +1,5 @@
+operation,label,von_ok,indicio_ok,von_median_ms,indicio_median_ms,delta_median_ms,delta_median_percent,von_mean_ms,indicio_mean_ms,delta_mean_ms,delta_mean_percent,von_p95_ms,indicio_p95_ms,delta_p95_ms,delta_p95_percent
+schema,Gravação de SCHEMA,10,10,3003.35,2964.952,-38.398,-1.28%,3003.469,3010.26,6.791,0.23%,3018.628,3479.827,461.199,15.28%
+cred_def,Gravação de CRED_DEF,10,10,3009.498,7370.99,4361.492,144.92%,3147.173,6320.467,3173.294,100.83%,3743.956,8212.407,4468.451,119.35%
+did,Gravação de DID comum,10,10,2995.549,3007.537,11.988,0.4%,2993.836,3018.679,24.843,0.83%,3007.958,3455.141,447.183,14.87%
+attrib,Gravação de ATTRIB,10,10,3011.443,3070.583,59.14,1.96%,3011.128,3027.625,16.497,0.55%,3022.191,3394.56,372.369,12.32%

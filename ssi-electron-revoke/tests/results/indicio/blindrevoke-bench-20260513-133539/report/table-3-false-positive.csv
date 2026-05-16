@@ -1,0 +1,2 @@
+status,manifesto,motivo,fillers,testes,fps_observados,taxa_fp_observada,fps_escaparam,taxa_fp_escaparam,latencia_mediana_ms,janelas_consultadas_mediana
+ok,http://127.0.0.1:8081/manifest,,8,20,0,0,0,0,202.114,20

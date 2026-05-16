@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-03-31T12:31:32.505Z",
+  "config": {
+    "base_url": "http://127.0.0.1:8080",
+    "test_filter_m_bits": 2000,
+    "test_filter_k": 3,
+    "trials": 3,
+    "primary_window_index": 10,
+    "validity_window_count": 30,
+    "dummy_batch_size": 32,
+    "max_fp_batches": 400,
+    "policy": {
+      "max_consecutive_hits_for_revoke": 11,
+      "max_windows_to_request": 10,
+      "allow_post_expiry_confirmation_windows": true,
+      "holder_must_disprove_with_additional_windows": true
+    }
+  },
+  "summary": {
+    "total_trials": 3,
+    "false_positive_trials": 0,
+    "false_positive_trial_percent": 0,
+    "no_false_positive_within_budget": 3,
+    "no_false_positive_within_budget_percent": 100,
+    "one_extra_window_sufficient": 0,
+    "one_extra_window_sufficient_percent": 0,
+    "two_extra_windows_required": 0,
+    "two_extra_windows_required_percent": 0,
+    "two_extra_windows_insufficient": 0,
+    "two_extra_windows_insufficient_percent": 0,
+    "unexpected_classifications": 0,
+    "avg_load_percent_at_hit": null,
+    "avg_inserted_count_at_hit": null,
+    "avg_theoretical_fp_percent_at_hit": null
+  },
+  "results": [
+    {
+      "trial_index": 1,
+      "false_positive_found": false,
+      "classification": null,
+      "filter_id": "filter-1774960181918029828",
+      "capacity_limit": 43,
+      "inserted_count_at_hit": null,
+      "batches_used": null,
+      "load_percent_at_hit": null,
+      "theoretical_fp_percent_at_hit": null,
+      "one_window_decision": null,
+      "two_window_decision": null,
+      "three_window_decision": null,
+      "two_window_trace_pattern": null,
+      "three_window_trace_pattern": null,
+      "recorded_at": "2026-03-31T12:29:42.076Z"
+    },
+    {
+      "trial_index": 2,
+      "false_positive_found": false,
+      "classification": null,
+      "filter_id": "filter-1774960236975275039",
+      "capacity_limit": 43,
+      "inserted_count_at_hit": null,
+      "batches_used": null,
+      "load_percent_at_hit": null,
+      "theoretical_fp_percent_at_hit": null,
+      "one_window_decision": null,
+      "two_window_decision": null,
+      "three_window_decision": null,
+      "two_window_trace_pattern": null,
+      "three_window_trace_pattern": null,
+      "recorded_at": "2026-03-31T12:30:37.123Z"
+    },
+    {
+      "trial_index": 3,
+      "false_positive_found": false,
+      "classification": null,
+      "filter_id": "filter-1774960292345266566",
+      "capacity_limit": 43,
+      "inserted_count_at_hit": null,
+      "batches_used": null,
+      "load_percent_at_hit": null,
+      "theoretical_fp_percent_at_hit": null,
+      "one_window_decision": null,
+      "two_window_decision": null,
+      "three_window_decision": null,
+      "two_window_trace_pattern": null,
+      "three_window_trace_pattern": null,
+      "recorded_at": "2026-03-31T12:31:32.467Z"
+    }
+  ]
+}
